@@ -3,7 +3,9 @@ import { doc, updateDoc } from 'firebase/firestore';
 import Modal from './Modal';
 import { Star } from 'lucide-react';
 
-const WorkloadRatingModal = ({ isOpen, onClose, db, shift, collectionPath }) => {
+import { db } from '../firebase';
+
+const WorkloadRatingModal = ({ isOpen, onClose, shift, collectionPath }) => {
     const [rating, setRating] = useState(shift?.workloadRating || 0);
     const handleSubmit = async () => {
         await updateDoc(doc(db, collectionPath, shift.id), { workloadRating: rating });
