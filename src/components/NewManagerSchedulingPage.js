@@ -132,7 +132,7 @@ const NewManagerSchedulingPage = ({ db, onViewProfile }) => {
 
         // Filter shifts based on selected units
         if (selectedUnits.length > 0) {
-            currentShifts = currentShifts.filter(shift => selectedUnits.includes(unitsMap[shift.unitId]?.name));
+            currentShfits = currentShifts.filter(shift => selectedUnits.includes(unitsMap[shift.unitId]?.name));
         }
 
         // Filter shifts based on selected statuses
@@ -239,7 +239,7 @@ const NewManagerSchedulingPage = ({ db, onViewProfile }) => {
                     <h1 className="text-4xl font-bold text-white">Staff Scheduling</h1>
                     <div className="relative mt-4 flex items-center">
                         <Search className="text-gray-400 ml-3" size={20}/>
-                        <input type="text" placeholder="Search staff..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="input-style w-64 pl-10"/>
+                        <input type="text" placeholder="Search staff..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="input-style w-64 pl-10" style={{ color: 'white' }}/>
                     </div>
                 </div>
                 {!showTodaysView && <div className="flex items-center gap-4">

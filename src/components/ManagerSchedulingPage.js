@@ -59,7 +59,7 @@ const ManagerSchedulingPage = ({ db }) => {
     return (
         <main className="p-8 overflow-y-auto flex-1 flex flex-col">
             <div className="flex justify-between items-start mb-8 gap-4">
-                <div><h1 className="text-4xl font-bold text-white">Staff Scheduling</h1><div className="relative mt-4"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20}/><input type="text" placeholder="Search staff..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="input-style pl-10 w-64"/></div></div>
+                <div><h1 className="text-4xl font-bold text-white">Staff Scheduling</h1><div className="relative mt-4"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20}/><input type="text" placeholder="Search staff..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="input-style pl-10 w-64" style={{ color: 'white' }}/></div></div>
                 <div className="text-right flex flex-col items-end gap-2">
                     <button onClick={() => setIsPublishModalOpen(true)} className="btn-primary flex items-center gap-2"><Send size={18}/> Publish Schedule</button>
                     <button onClick={() => setShowTodaysView(!showTodaysView)} className="btn-secondary">{showTodaysView ? "Show Full Schedule" : "Show Today's View"}</button>
