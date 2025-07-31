@@ -66,6 +66,47 @@ const NewStaffSchedulingPage = () => {
 
     const statusColors = { 'Productive': 'bg-green-700', 'PTO': 'bg-yellow-700', 'On Call': 'bg-blue-700', 'Non-Productive': 'bg-gray-700', 'FMLA': 'bg-purple-700', 'EIB': 'bg-gray-700', 'Call Out': 'bg-gray-700', 'Preferred Off': 'bg-gray-700', 'On Call 1': 'bg-gray-700', 'On Call 2': 'bg-gray-700', 'On Call 3': 'bg-gray-700', 'MRI Morning Call': 'bg-gray-700', 'MRI Evening Call': 'bg-gray-700', 'Bonus': 'bg-gray-700', 'Extra Work Day': 'bg-gray-700', 'Orientation': 'bg-gray-700', 'Late Stay 1': 'bg-gray-700', 'Late Stay 2': 'bg-gray-700', 'Requested off': 'bg-gray-700' };
 
+    const getShiftDateObjects = (shift) => {
+        let shiftStart = null;
+        let shiftEnd = null;
+
+        if (shift.shiftStartDateTime) {
+            shiftStart = new Date(shift.shiftStartDateTime);
+        } else if (shift.startTime?.seconds) {
+            shiftStart = new Date(shift.startTime.seconds * 1000);
+        }
+
+        if (shift.shiftEndDateTime) {
+            shiftEnd = new Date(shift.shiftEndDateTime);
+        } else if (shift.endTime?.seconds) {
+            shiftEnd = new Date(shift.endTime.seconds * 1000);
+        }
+
+        if (shiftStart && shiftEnd && !isNaN(shiftStart) && !isNaN(shiftEnd)) {
+            return { shiftStart, shiftEnd };
+        }
+
+        return { shiftStart: null, shiftEnd: null };
+    }
+
+    const formatShiftTime = (shift) => {
+        const { shiftStart, shiftEnd } = getShiftDateObjects(shift);
+
+        if (shiftStart && shiftEnd) {
+            const options = {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+                timeZone: 'America/Chicago',
+            };
+            const startTimeString = new Intl.DateTimeFormat('en-US', options).format(shiftStart);
+            const endTimeString = new Intl.DateTimeFormat('en-US', options).format(shiftEnd);
+            return `${startTimeString} - ${endTimeString}`;
+        }
+
+        return 'Invalid time';
+    }
+
     const handleDownloadCalendar = () => {
         if (!myShifts || myShifts.length === 0) {
             alert("No shifts to download.");
@@ -125,7 +166,7 @@ const NewStaffSchedulingPage = () => {
                                                 </div>
                                             </div>
                                             <div className="flex justify-between items-center">
-                                                <p className="text-xs">{new Date(shift.startTime.seconds * 1000).toLocaleTimeString()} - {new Date(shift.endTime.seconds * 1000).toLocaleTimeString()}</p>
+                                                <p className="text-xs">{formatShiftTime(shift)}</p>
                                             </div>
                                         </div>
                                     ))}
