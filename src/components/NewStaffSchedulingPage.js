@@ -52,7 +52,10 @@ const NewStaffSchedulingPage = () => {
         const today = new Date().setHours(0,0,0,0);
         const shiftDate = new Date(shift.date).setHours(0,0,0,0);
         setSelectedShift(shift);
-        if (shiftDate < today) {
+
+        const isEligibleForSurvey = currentUserProfile?.jobTitle === 'Registered Nurse' || currentUserProfile?.jobTitle === 'LPN';
+
+        if (shiftDate < today && isEligibleForSurvey) {
             setIsWorkloadModalOpen(true);
         } else {
             setIsShiftDetailsModalOpen(true);
