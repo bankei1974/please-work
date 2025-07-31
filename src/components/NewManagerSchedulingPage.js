@@ -455,7 +455,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
                                                                                 title={Array.isArray(shift.status) ? shift.status.join(', ') : shift.status}
                                                                             >
                                                                                 <div className="flex justify-between items-center">
-                                                                                    <div>{new Date(shift.startTime.seconds * 1000).toLocaleTimeString()} - {new Date(shift.endTime.seconds * 1000).toLocaleTimeString()}</div>
+                                                                                    <div>{new Date(shift.shiftStartDateTime).toLocaleTimeString()} - {new Date(shift.shiftEndDateTime).toLocaleTimeString()}</div>
                                                                                     <div className="flex gap-1">
                                                                                         {Array.isArray(shift.status) && shift.status.map(s => <span key={s} className="text-xl text-white text-shadow-default">{statusSymbols[s] || '❓'}</span>)}
                                                                                     </div>

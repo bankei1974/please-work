@@ -27,8 +27,20 @@ const ShiftModal = ({ isOpen, onClose, db, shiftInfo, units, statuses, collectio
 
     useEffect(() => { 
         if (shiftInfo) {
-            const shiftStartUtc = shiftInfo.shift?.shiftStartDateTime ? new Date(shiftInfo.shift.shiftStartDateTime) : null;
-            const shiftEndUtc = shiftInfo.shift?.shiftEndDateTime ? new Date(shiftInfo.shift.shiftEndDateTime) : null;
+            let shiftStartUtc = null;
+            let shiftEndUtc = null;
+
+            if (shiftInfo.shift?.shiftStartDateTime) {
+                shiftStartUtc = new Date(shiftInfo.shift.shiftStartDateTime);
+            } else if (shiftInfo.shift?.startTime?.seconds) {
+                shiftStartUtc = new Date(shiftInfo.shift.startTime.seconds * 1000);
+            }
+
+            if (shiftInfo.shift?.shiftEndDateTime) {
+                shiftEndUtc = new Date(shiftInfo.shift.shiftEndDateTime);
+            } else if (shiftInfo.shift?.endTime?.seconds) {
+                shiftEndUtc = new Date(shiftInfo.shift.endTime.seconds * 1000);
+            }
 
             setFormData({ 
                 staffId: shiftInfo.staff.id, 
