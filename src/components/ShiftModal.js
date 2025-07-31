@@ -362,11 +362,58 @@ const ShiftModal = ({ isOpen, onClose, db, shiftInfo, units, statuses, collectio
         }
         onClose();
     };
-    const handleDelete = async () => { 
+    const handleDelete = async () => {
         if (formData.id && window.confirm("Delete this shift?")) {
             console.log("Attempting to delete shift with ID:", formData.id);
             try {
-                await deleteDoc(doc(db, collectionPath, formData.id));
+                const shiftDocRef = doc(db, collectionPath, formData.id);
+                const shiftDoc = await getDoc(shiftDocRef);
+                if (shiftDoc.exists()) {
+                    const shiftData = shiftDoc.data();
+                    const staffId = shiftData.staffId;
+                    let karmaReversal = 0;
+                    let reversalReason = '';
+
+                    if (shiftData.karmaDeducted) { // Call Out
+                        karmaReversal += 10;
+                        reversalReason = 'Deleted Call Out';
+                    }
+                    if (shiftData.karmaAwarded) { // Extra Shift
+                        karmaReversal -= 5;
+                        reversalReason = 'Deleted Extra Shift';
+                    }
+                    if (shiftData.swapKarmaAwarded) { // Swapped Shift
+                        karmaReversal -= 5;
+                        reversalReason = 'Deleted Swapped Shift';
+                    }
+                    if (shiftData.noShowKarmaDeducted) { // No Call/No Show
+                        karmaReversal += 25;
+                        reversalReason = 'Deleted No Call/No Show';
+                    }
+                    if (shiftData.manualKarmaAdjustment) {
+                        karmaReversal -= shiftData.manualKarmaAdjustment;
+                        reversalReason = `Reversal of manual adjustment: ${shiftData.manualKarmaReason}`;
+                    }
+
+                    if (karmaReversal !== 0) {
+                        const userDocRef = doc(db, 'users', staffId);
+                        const userDoc = await getDoc(userDocRef);
+                        if (userDoc.exists()) {
+                            const currentKarma = userDoc.data().staffKarma || 0;
+                            await updateDoc(userDocRef, { staffKarma: currentKarma + karmaReversal });
+                            await addDoc(collection(db, 'karmaTransactions'), {
+                                staffId: staffId,
+                                date: shiftData.date,
+                                karmaChange: karmaReversal,
+                                reason: reversalReason,
+                                transactionType: karmaReversal > 0 ? 'Award' : 'Deduction',
+                                timestamp: serverTimestamp(),
+                            });
+                        }
+                    }
+                }
+
+                await deleteDoc(shiftDocRef);
                 onClose();
             } catch (error) {
                 console.error("Error deleting shift:", error);
