@@ -212,6 +212,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const workloadColor = (rating) => { if (rating >= 4) return 'bg-green-500'; if (rating === 3) return 'bg-yellow-500'; if (rating <= 2) return 'bg-red-500'; return 'hidden'; };
     
     const formatShiftTime = (shift) => {
+        console.log("Formatting shift:", shift);
         let shiftStart = null;
         let shiftEnd = null;
 
