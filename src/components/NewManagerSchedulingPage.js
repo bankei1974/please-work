@@ -211,6 +211,29 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     
     const workloadColor = (rating) => { if (rating >= 4) return 'bg-green-500'; if (rating === 3) return 'bg-yellow-500'; if (rating <= 2) return 'bg-red-500'; return 'hidden'; };
     
+    const formatShiftTime = (shift) => {
+        let shiftStart = null;
+        let shiftEnd = null;
+
+        if (shift.shiftStartDateTime) {
+            shiftStart = new Date(shift.shiftStartDateTime);
+        } else if (shift.startTime?.seconds) {
+            shiftStart = new Date(shift.startTime.seconds * 1000);
+        }
+
+        if (shift.shiftEndDateTime) {
+            shiftEnd = new Date(shift.shiftEndDateTime);
+        } else if (shift.endTime?.seconds) {
+            shiftEnd = new Date(shift.endTime.seconds * 1000);
+        }
+
+        if (shiftStart && shiftEnd && !isNaN(shiftStart) && !isNaN(shiftEnd)) {
+            return `${shiftStart.toLocaleTimeString()} - ${shiftEnd.toLocaleTimeString()}`;
+        }
+
+        return 'Invalid time';
+    }
+
     const getDayColoring = (date) => {
         const minStaff = 4;
         const optStaff = 6;
@@ -455,7 +478,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
                                                                                 title={Array.isArray(shift.status) ? shift.status.join(', ') : shift.status}
                                                                             >
                                                                                 <div className="flex justify-between items-center">
-                                                                                    <div>{new Date(shift.shiftStartDateTime).toLocaleTimeString()} - {new Date(shift.shiftEndDateTime).toLocaleTimeString()}</div>
+                                                                                    <div>{formatShiftTime(shift)}</div>
                                                                                     <div className="flex gap-1">
                                                                                         {Array.isArray(shift.status) && shift.status.map(s => <span key={s} className="text-xl text-white text-shadow-default">{statusSymbols[s] || '❓'}</span>)}
                                                                                     </div>
