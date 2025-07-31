@@ -8,7 +8,9 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { where, doc, updateDoc, addDoc, deleteDoc, deleteField, collection } from 'firebase/firestore';
 import TodaysView from './TodaysView';
 
-const NewManagerSchedulingPage = ({ db, onViewProfile }) => {
+import { db } from '../firebase';
+
+const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const [startDate, setStartDate] = useState(new Date());
     const [isShiftModalOpen, setIsShiftModalOpen] = useState(false);
     const [selectedShiftInfo, setSelectedShiftInfo] = useState(null);
@@ -57,16 +59,19 @@ const NewManagerSchedulingPage = ({ db, onViewProfile }) => {
             return;
         }
         try {
-            // Add the shift to the 'shifts' collection with the new staffId
-            const { claimedBy, claimedByName, ...shiftDataToSave } = shift; // Destructure to omit claimedBy and claimedByName
-            await addDoc(collection(db, 'shifts'), {
-                ...shiftDataToSave,
-                staffId: claimedBy,
-                claimStatus: 'approved', // New field for claim status
-            });
+            const { claimedBy, claimedByName, startTime, endTime, ...restOfShiftData } = shift;
 
-            // Delete the shift from the 'openShifts' collection
+            const newShiftData = {
+                ...restOfShiftData,
+                staffId: claimedBy,
+                claimStatus: 'approved',
+                shiftStartDateTime: startTime.toDate().toISOString(),
+                shiftEndDateTime: endTime.toDate().toISOString(),
+            };
+
+            await addDoc(collection(db, 'shifts'), newShiftData);
             await deleteDoc(doc(db, 'openShifts', shift.id));
+
             alert('Shift approved and moved to staff schedule!');
         } catch (error) {
             console.error("Error approving shift:", error);
@@ -206,19 +211,73 @@ const NewManagerSchedulingPage = ({ db, onViewProfile }) => {
     
     const workloadColor = (rating) => { if (rating >= 4) return 'bg-green-500'; if (rating === 3) return 'bg-yellow-500'; if (rating <= 2) return 'bg-red-500'; return 'hidden'; };
     
+    const getShiftDateObjects = (shift) => {
+        let shiftStart = null;
+        let shiftEnd = null;
+
+        if (shift.shiftStartDateTime) {
+            shiftStart = new Date(shift.shiftStartDateTime);
+        } else if (shift.startTime?.seconds) {
+            shiftStart = new Date(shift.startTime.seconds * 1000);
+        }
+
+        if (shift.shiftEndDateTime) {
+            shiftEnd = new Date(shift.shiftEndDateTime);
+        } else if (shift.endTime?.seconds) {
+            shiftEnd = new Date(shift.endTime.seconds * 1000);
+        }
+
+        if (shiftStart && shiftEnd && !isNaN(shiftStart) && !isNaN(shiftEnd)) {
+            return { shiftStart, shiftEnd };
+        }
+
+        return { shiftStart: null, shiftEnd: null };
+    }
+
+    const formatShiftTime = (shift) => {
+        const { shiftStart, shiftEnd } = getShiftDateObjects(shift);
+
+        if (shiftStart && shiftEnd) {
+            const options = {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+                timeZone: 'America/Chicago',
+            };
+            const startTimeString = new Intl.DateTimeFormat('en-US', options).format(shiftStart);
+            const endTimeString = new Intl.DateTimeFormat('en-US', options).format(shiftEnd);
+            return `${startTimeString} - ${endTimeString}`;
+        }
+
+        return 'Invalid time';
+    }
+
     const getDayColoring = (date) => {
         const minStaff = 4;
         const optStaff = 6;
+        if (!shifts) return 'bg-gray-800';
         const dayShifts = shifts.filter(s => s.date === date.toISOString().split('T')[0] && Array.isArray(s.status) && s.status.includes('Productive'));
         if (dayShifts.length === 0) return 'bg-gray-800';
 
         const slots = Array(48).fill(0); // 30-min slots
         dayShifts.forEach(shift => {
-            if(!shift.startTime || !shift.endTime) return;
-            const start = Math.floor(parseInt(shift.startTime.split(':')[0]) * 2 + parseInt(shift.startTime.split(':')[1]) / 30);
-            const end = Math.ceil(parseInt(shift.endTime.split(':')[0]) * 2 + parseInt(shift.endTime.split(':')[1]) / 30);
-            for (let i = start; i < end; i++) {
-                slots[i]++;
+            const { shiftStart, shiftEnd } = getShiftDateObjects(shift);
+            if(shiftStart && shiftEnd) {
+                const options = {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: false,
+                    timeZone: 'America/Chicago',
+                };
+                const startParts = new Intl.DateTimeFormat('en-US', options).formatToParts(shiftStart).reduce((acc, part) => { if(part.type !== 'literal') acc[part.type] = part.value; return acc; }, {});
+                const endParts = new Intl.DateTimeFormat('en-US', options).formatToParts(shiftEnd).reduce((acc, part) => { if(part.type !== 'literal') acc[part.type] = part.value; return acc; }, {});
+
+                const start = Math.floor(parseInt(startParts.hour) * 2 + parseInt(startParts.minute) / 30);
+                const end = Math.ceil(parseInt(endParts.hour) * 2 + parseInt(endParts.minute) / 30);
+
+                for (let i = start; i < end; i++) {
+                    slots[i]++;
+                }
             }
         });
 
@@ -450,7 +509,7 @@ const NewManagerSchedulingPage = ({ db, onViewProfile }) => {
                                                                                 title={Array.isArray(shift.status) ? shift.status.join(', ') : shift.status}
                                                                             >
                                                                                 <div className="flex justify-between items-center">
-                                                                                    <div>{new Date(shift.startTime.seconds * 1000).toLocaleTimeString()} - {new Date(shift.endTime.seconds * 1000).toLocaleTimeString()}</div>
+                                                                                    <div>{formatShiftTime(shift)}</div>
                                                                                     <div className="flex gap-1">
                                                                                         {Array.isArray(shift.status) && shift.status.map(s => <span key={s} className="text-xl text-white text-shadow-default">{statusSymbols[s] || '❓'}</span>)}
                                                                                     </div>

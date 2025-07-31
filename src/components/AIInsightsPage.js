@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { collection, where, getDocs, query } from 'firebase/firestore';
 import { Sparkles } from 'lucide-react';
 
-const AIInsightsPage = ({ db }) => {
+import { db } from '../firebase';
+
+const AIInsightsPage = () => {
     const [analysisResult, setAnalysisResult] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [question, setQuestion] = useState('');

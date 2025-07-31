@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import SimpleManagement from './SimpleManagement';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
-const StaffAndUnitManagementPage = ({ db }) => {
+import { db } from '../firebase';
+
+const StaffAndUnitManagementPage = () => {
     const [expandedSections, setExpandedSections] = useState({
         units: false,
         jobTitles: false,

@@ -6,7 +6,11 @@ import { format, addMonths, subMonths, isSameMonth } from 'date-fns';
 import OpenShiftFormModal from './OpenShiftFormModal';
 import { doc, updateDoc } from 'firebase/firestore';
 
-const HelpOutHubPage = ({ db, currentUser, userProfile }) => {
+import { db } from '../firebase';
+import { useAuthContext } from '../context/AuthContext';
+
+const HelpOutHubPage = () => {
+    const { user: currentUser, userProfile } = useAuthContext();
     const [startDate, setStartDate] = useState(new Date());
     const [isShiftDetailsModalOpen, setIsShiftDetailsModalOpen] = useState(false);
     const [selectedShift, setSelectedShift] = useState(null);

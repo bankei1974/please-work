@@ -7,7 +7,11 @@ import { useCollection } from '../hooks/useCollection';
 import { where, doc, updateDoc } from 'firebase/firestore';
 import { createUtcDateFromCentralTime } from '../utils/timezoneHelpers';
 
-const ReportsPage = ({ db, currentUserProfile }) => {
+import { db } from '../firebase';
+import { useAuthContext } from '../context/AuthContext';
+
+const ReportsPage = () => {
+    const { userProfile: currentUserProfile } = useAuthContext();
     const [isStaffingLevelsModalOpen, setIsStaffingLevelsModalOpen] = useState(false);
     const [isPatientCensusModalOpen, setIsPatientCensusModalOpen] = useState(false);
     const [selectedUnit, setSelectedUnit] = useState('');

@@ -2,7 +2,11 @@ import React from 'react';
 import { useCollection } from '../hooks/useCollection';
 import { where } from 'firebase/firestore';
 
-const StaffKarmaPage = ({ db, currentUserProfile }) => {
+import { db } from '../firebase';
+import { useAuthContext } from '../context/AuthContext';
+
+const StaffKarmaPage = () => {
+    const { userProfile: currentUserProfile } = useAuthContext();
     const { data: karmaTransactions, loading: karmaLoading } = useCollection(db, 'karmaTransactions', currentUserProfile?.id ? [where("staffId", "==", currentUserProfile.id)] : [], ["timestamp", "desc"]);
 
     return (
