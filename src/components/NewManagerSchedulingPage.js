@@ -211,8 +211,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     
     const workloadColor = (rating) => { if (rating >= 4) return 'bg-green-500'; if (rating === 3) return 'bg-yellow-500'; if (rating <= 2) return 'bg-red-500'; return 'hidden'; };
     
-    const formatShiftTime = (shift) => {
-        console.log("Formatting shift:", shift);
+    const getShiftDateObjects = (shift) => {
         let shiftStart = null;
         let shiftEnd = null;
 
@@ -229,6 +228,16 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         }
 
         if (shiftStart && shiftEnd && !isNaN(shiftStart) && !isNaN(shiftEnd)) {
+            return { shiftStart, shiftEnd };
+        }
+
+        return { shiftStart: null, shiftEnd: null };
+    }
+
+    const formatShiftTime = (shift) => {
+        const { shiftStart, shiftEnd } = getShiftDateObjects(shift);
+
+        if (shiftStart && shiftEnd) {
             const options = {
                 hour: 'numeric',
                 minute: 'numeric',
@@ -246,16 +255,29 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const getDayColoring = (date) => {
         const minStaff = 4;
         const optStaff = 6;
+        if (!shifts) return 'bg-gray-800';
         const dayShifts = shifts.filter(s => s.date === date.toISOString().split('T')[0] && Array.isArray(s.status) && s.status.includes('Productive'));
         if (dayShifts.length === 0) return 'bg-gray-800';
 
         const slots = Array(48).fill(0); // 30-min slots
         dayShifts.forEach(shift => {
-            if(!shift.startTime || !shift.endTime) return;
-            const start = Math.floor(parseInt(shift.startTime.split(':')[0]) * 2 + parseInt(shift.startTime.split(':')[1]) / 30);
-            const end = Math.ceil(parseInt(shift.endTime.split(':')[0]) * 2 + parseInt(shift.endTime.split(':')[1]) / 30);
-            for (let i = start; i < end; i++) {
-                slots[i]++;
+            const { shiftStart, shiftEnd } = getShiftDateObjects(shift);
+            if(shiftStart && shiftEnd) {
+                const options = {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: false,
+                    timeZone: 'America/Chicago',
+                };
+                const startParts = new Intl.DateTimeFormat('en-US', options).formatToParts(shiftStart).reduce((acc, part) => { if(part.type !== 'literal') acc[part.type] = part.value; return acc; }, {});
+                const endParts = new Intl.DateTimeFormat('en-US', options).formatToParts(shiftEnd).reduce((acc, part) => { if(part.type !== 'literal') acc[part.type] = part.value; return acc; }, {});
+
+                const start = Math.floor(parseInt(startParts.hour) * 2 + parseInt(startParts.minute) / 30);
+                const end = Math.ceil(parseInt(endParts.hour) * 2 + parseInt(endParts.minute) / 30);
+
+                for (let i = start; i < end; i++) {
+                    slots[i]++;
+                }
             }
         });
 
