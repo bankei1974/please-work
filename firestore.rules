@@ -45,8 +45,8 @@ service cloud.firestore {
 
     // Shifts Collection Rules
     match /shifts/{shiftId} {
-      // Any authenticated user can read shifts
-      allow read: if request.auth != null;
+      // A user can read a shift if they are the assigned staff member or a manager.
+      allow read: if request.auth != null && (resource.data.staffId == request.auth.uid || isManager());
       // Only managers can create shifts
       allow create: if isManager();
       // Staff can update their own shifts, or managers can update any shift
