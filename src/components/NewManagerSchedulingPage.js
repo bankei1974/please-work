@@ -59,16 +59,19 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
             return;
         }
         try {
-            // Add the shift to the 'shifts' collection with the new staffId
-            const { claimedBy, claimedByName, ...shiftDataToSave } = shift; // Destructure to omit claimedBy and claimedByName
-            await addDoc(collection(db, 'shifts'), {
-                ...shiftDataToSave,
-                staffId: claimedBy,
-                claimStatus: 'approved', // New field for claim status
-            });
+            const { claimedBy, claimedByName, startTime, endTime, ...restOfShiftData } = shift;
 
-            // Delete the shift from the 'openShifts' collection
+            const newShiftData = {
+                ...restOfShiftData,
+                staffId: claimedBy,
+                claimStatus: 'approved',
+                shiftStartDateTime: startTime.toDate().toISOString(),
+                shiftEndDateTime: endTime.toDate().toISOString(),
+            };
+
+            await addDoc(collection(db, 'shifts'), newShiftData);
             await deleteDoc(doc(db, 'openShifts', shift.id));
+
             alert('Shift approved and moved to staff schedule!');
         } catch (error) {
             console.error("Error approving shift:", error);
