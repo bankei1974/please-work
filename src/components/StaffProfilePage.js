@@ -2,7 +2,9 @@
 import React from 'react';
 import StaffProfile from './StaffProfile';
 
-const StaffProfilePage = ({ db, staffId }) => {
+import { db } from '../firebase';
+
+const StaffProfilePage = ({ staffId }) => {
     return (
         <div className="p-6">
             <StaffProfile db={db} staffId={staffId} />

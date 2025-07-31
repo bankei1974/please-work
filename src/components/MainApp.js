@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { signOut } from 'firebase/auth';
+import { useAuthContext } from '../context/AuthContext';
+import { db } from '../firebase';
 import NewStaffSchedulingPage from './NewStaffSchedulingPage';
 import NewManagerSchedulingPage from './NewManagerSchedulingPage';
 import StaffAndUnitManagementPage from './StaffAndUnitManagementPage';
@@ -13,12 +14,13 @@ import StaffKarmaPage from './StaffKarmaPage';
 import { Users, CalendarDays, BarChart2, Sparkles, LogOut, ChevronsLeft, ChevronsRight, TrendingUp, Handshake } from 'lucide-react';
 import { doc, updateDoc, collection, addDoc } from 'firebase/firestore';
 
-const MainApp = ({ auth, db, currentUser, userProfile }) => {
+const MainApp = () => {
+    const { user: currentUser, userProfile, logout } = useAuthContext();
     const isManager = userProfile.role === 'Manager';
     const [activePage, setActivePage] = useState(() => isManager ? 'scheduling' : 'my-schedule');
     const [selectedStaffId, setSelectedStaffId] = useState(null);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    const onSignOut = () => signOut(auth);
+    const onSignOut = logout;
 
     const handleViewProfile = (staffId) => {
         setSelectedStaffId(staffId);
@@ -27,7 +29,7 @@ const MainApp = ({ auth, db, currentUser, userProfile }) => {
 
     useEffect(() => {
         // Daily Staff Karma for login/viewing schedule
-        if (userProfile && db) {
+        if (userProfile && currentUser) {
             const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
             if (userProfile.lastLoginDate !== today) {
                 const userRef = doc(db, 'users', userProfile.id);
@@ -63,27 +65,27 @@ const MainApp = ({ auth, db, currentUser, userProfile }) => {
                 }).catch(error => console.error("Error updating staff karma for daily login:", error));
             }
         }
-    }, [userProfile, db]);
+    }, [userProfile, currentUser]);
 
     const renderPage = () => {
         if (!isManager) {
             switch (activePage) {
-                case 'my-schedule': return <NewStaffSchedulingPage db={db} currentUserProfile={userProfile} />;
-                case 'help-out-hub': return <HelpOutHubPage db={db} currentUser={currentUser} userProfile={userProfile} />;
-                case 'my-karma': return <StaffKarmaPage db={db} currentUserProfile={userProfile} />;
-                default: return <NewStaffSchedulingPage db={db} currentUserProfile={userProfile} />;
+                case 'my-schedule': return <NewStaffSchedulingPage />;
+                case 'help-out-hub': return <HelpOutHubPage />;
+                case 'my-karma': return <StaffKarmaPage />;
+                default: return <NewStaffSchedulingPage />;
             }
         }
         switch (activePage) {
-            case 'management': return <StaffAndUnitManagementPage db={db} />;
-            case 'staff-management': return <StaffManagementPage db={db} onViewProfile={handleViewProfile} />;
-            case 'staff-profile': return <StaffProfilePage db={db} staffId={selectedStaffId} />;
-            case 'scheduling': return <NewManagerSchedulingPage db={db} onViewProfile={handleViewProfile} />;
-            case 'staffing-levels': return <StaffingLevelsPage db={db} />;
-            case 'reports': return <ReportsPage db={db} currentUserProfile={userProfile} />;
-            case 'ai-insights': return <AIInsightsPage db={db} />;
-            case 'help-out-hub': return <HelpOutHubPage db={db} currentUser={currentUser} userProfile={userProfile} />;
-            default: return <NewManagerSchedulingPage db={db} />;
+            case 'management': return <StaffAndUnitManagementPage />;
+            case 'staff-management': return <StaffManagementPage onViewProfile={handleViewProfile} />;
+            case 'staff-profile': return <StaffProfilePage staffId={selectedStaffId} />;
+            case 'scheduling': return <NewManagerSchedulingPage onViewProfile={handleViewProfile} />;
+            case 'staffing-levels': return <StaffingLevelsPage />;
+            case 'reports': return <ReportsPage />;
+            case 'ai-insights': return <AIInsightsPage />;
+            case 'help-out-hub': return <HelpOutHubPage />;
+            default: return <NewManagerSchedulingPage />;
         }
     };
 

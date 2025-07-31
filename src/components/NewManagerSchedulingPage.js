@@ -8,7 +8,9 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { where, doc, updateDoc, addDoc, deleteDoc, deleteField, collection } from 'firebase/firestore';
 import TodaysView from './TodaysView';
 
-const NewManagerSchedulingPage = ({ db, onViewProfile }) => {
+import { db } from '../firebase';
+
+const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const [startDate, setStartDate] = useState(new Date());
     const [isShiftModalOpen, setIsShiftModalOpen] = useState(false);
     const [selectedShiftInfo, setSelectedShiftInfo] = useState(null);

@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import { useCollection } from '../hooks/useCollection';
 import UnitStaffingTimeline from './UnitStaffingTimeline';
 
-const StaffingLevelsPage = ({ db }) => {
+import { db } from '../firebase';
+
+const StaffingLevelsPage = () => {
     const [selectedUnit, setSelectedUnit] = useState('');
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 

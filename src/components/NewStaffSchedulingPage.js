@@ -6,8 +6,12 @@ import WorkloadRatingModal from './WorkloadRatingModal';
 import { ChevronLeft, ChevronRight, Download, Users } from 'lucide-react';
 import { generateIcsContent } from '../utils/calendarUtils';
 import FindSwapModal from './FindSwapModal';
+import { useAuthContext } from '../context/AuthContext';
+import { db } from '../firebase';
 
-const NewStaffSchedulingPage = ({ db, currentUserProfile }) => {
+
+const NewStaffSchedulingPage = () => {
+    const { userProfile: currentUserProfile } = useAuthContext();
     const [startDate, setStartDate] = useState(new Date());
     const [isShiftDetailsModalOpen, setIsShiftDetailsModalOpen] = useState(false);
     const [isWorkloadModalOpen, setIsWorkloadModalOpen] = useState(false);
@@ -60,7 +64,7 @@ const NewStaffSchedulingPage = ({ db, currentUserProfile }) => {
     const statusColors = { 'Productive': 'bg-green-700', 'PTO': 'bg-yellow-700', 'On Call': 'bg-blue-700', 'Non-Productive': 'bg-gray-700', 'FMLA': 'bg-purple-700', 'EIB': 'bg-gray-700', 'Call Out': 'bg-gray-700', 'Preferred Off': 'bg-gray-700', 'On Call 1': 'bg-gray-700', 'On Call 2': 'bg-gray-700', 'On Call 3': 'bg-gray-700', 'MRI Morning Call': 'bg-gray-700', 'MRI Evening Call': 'bg-gray-700', 'Bonus': 'bg-gray-700', 'Extra Work Day': 'bg-gray-700', 'Orientation': 'bg-gray-700', 'Late Stay 1': 'bg-gray-700', 'Late Stay 2': 'bg-gray-700', 'Requested off': 'bg-gray-700' };
 
     const handleDownloadCalendar = () => {
-        if (myShifts.length === 0) {
+        if (!myShifts || myShifts.length === 0) {
             alert("No shifts to download.");
             return;
         }
@@ -96,7 +100,7 @@ const NewStaffSchedulingPage = ({ db, currentUserProfile }) => {
                     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => <div key={day} className="text-center font-semibold py-2 bg-gray-800">{day}</div>)}
                     {dates.map(date => {
                         const dateString = date.toISOString().split('T')[0];
-                        const shiftsForDay = shiftsToDisplay.filter(s => {
+                        const shiftsForDay = shiftsToDisplay && shiftsToDisplay.filter(s => {
                             const shiftDate = s.date || new Date(s.startTime.seconds * 1000).toISOString().split('T')[0];
                             return shiftDate === dateString;
                         });
@@ -104,7 +108,7 @@ const NewStaffSchedulingPage = ({ db, currentUserProfile }) => {
                             <div key={dateString} className="p-2 bg-gray-800/50 border-t border-gray-700">
                                 <span className="font-semibold">{date.getDate()}</span>
                                 <div className="mt-1 space-y-1">
-                                    {shiftsForDay.map(shift => (
+                                    {shiftsForDay && shiftsForDay.map(shift => (
                                         <div
                                             key={shift.id}
                                             onClick={() => handleShiftClick(shift)}
@@ -128,13 +132,11 @@ const NewStaffSchedulingPage = ({ db, currentUserProfile }) => {
                     })}
                 </div>
             </main>
-            <StaffShiftDetailsModal isOpen={isShiftDetailsModalOpen} onClose={() => setIsShiftDetailsModalOpen(false)} shift={selectedShift} db={db} />
-            <WorkloadRatingModal isOpen={isWorkloadModalOpen} onClose={() => setIsWorkloadModalOpen(false)} db={db} shift={selectedShift} collectionPath={shiftsPath} />
+            <StaffShiftDetailsModal isOpen={isShiftDetailsModalOpen} onClose={() => setIsShiftDetailsModalOpen(false)} shift={selectedShift} />
+            <WorkloadRatingModal isOpen={isWorkloadModalOpen} onClose={() => setIsWorkloadModalOpen(false)} shift={selectedShift} collectionPath={shiftsPath} />
             <FindSwapModal
                 isOpen={isFindSwapModalOpen}
                 onClose={() => setIsFindSwapModalOpen(false)}
-                db={db}
-                currentUserProfile={currentUserProfile}
                 shifts={myShifts}
                 units={units}
                 jobTitles={jobTitles}
