@@ -228,7 +228,15 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         }
 
         if (shiftStart && shiftEnd && !isNaN(shiftStart) && !isNaN(shiftEnd)) {
-            return `${shiftStart.toLocaleTimeString()} - ${shiftEnd.toLocaleTimeString()}`;
+            const options = {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+                timeZone: 'America/Chicago',
+            };
+            const startTimeString = new Intl.DateTimeFormat('en-US', options).format(shiftStart);
+            const endTimeString = new Intl.DateTimeFormat('en-US', options).format(shiftEnd);
+            return `${startTimeString} - ${endTimeString}`;
         }
 
         return 'Invalid time';
