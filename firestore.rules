@@ -73,6 +73,14 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Weekly Check-ins Collection Rules
+    match /weeklyCheckins/{checkinId} {
+      allow create: if request.auth != null && request.resource.data.staffId == request.auth.uid;
+      allow read: if request.auth != null && (resource.data.staffId == request.auth.uid || isManager());
+      allow update: if false;
+      allow delete: if isManager();
+    }
+
     // Huddle Picks Collection Rules
     match /huddlePicks/{huddlePickId} {
       // Allow authenticated users to read huddle picks
