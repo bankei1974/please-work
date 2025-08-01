@@ -6,6 +6,7 @@ import WorkloadRatingModal from './WorkloadRatingModal';
 import { ChevronLeft, ChevronRight, Download, Users } from 'lucide-react';
 import { generateIcsContent } from '../utils/calendarUtils';
 import FindSwapModal from './FindSwapModal';
+import WeeklyCheckinModal from './WeeklyCheckinModal';
 import { useAuthContext } from '../context/AuthContext';
 import { db } from '../firebase';
 
@@ -17,6 +18,7 @@ const NewStaffSchedulingPage = () => {
     const [isWorkloadModalOpen, setIsWorkloadModalOpen] = useState(false);
     const [selectedShift, setSelectedShift] = useState(null);
     const [isFindSwapModalOpen, setIsFindSwapModalOpen] = useState(false);
+    const [isWeeklyCheckinModalOpen, setIsWeeklyCheckinModalOpen] = useState(false);
 
     const shiftsPath = `shifts`;
     const unitsPath = `units`;
@@ -53,9 +55,24 @@ const NewStaffSchedulingPage = () => {
         const shiftDate = new Date(shift.date).setHours(0,0,0,0);
         setSelectedShift(shift);
 
+        // Check if it's the last shift of the week
+        const weekStart = new Date(shift.date);
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+
+        const shiftsInWeek = myShifts.filter(s => {
+            const d = new Date(s.date);
+            return d >= weekStart && d <= weekEnd;
+        });
+
+        const isLastShiftOfWeek = shiftsInWeek.every(s => new Date(s.date) <= new Date(shift.date));
+
         const isEligibleForSurvey = currentUserProfile?.jobTitle === 'Registered Nurse' || currentUserProfile?.jobTitle === 'LPN';
 
-        if (shiftDate < today && isEligibleForSurvey) {
+        if (shiftDate < today && isLastShiftOfWeek) {
+            setIsWeeklyCheckinModalOpen(true);
+        } else if (shiftDate < today && isEligibleForSurvey) {
             setIsWorkloadModalOpen(true);
         } else {
             setIsShiftDetailsModalOpen(true);
@@ -185,6 +202,11 @@ const NewStaffSchedulingPage = () => {
                 units={units}
                 jobTitles={jobTitles}
                 statuses={statuses}
+            />
+            <WeeklyCheckinModal
+                isOpen={isWeeklyCheckinModalOpen}
+                onClose={() => setIsWeeklyCheckinModalOpen(false)}
+                userProfile={currentUserProfile}
             />
         </>
     );
