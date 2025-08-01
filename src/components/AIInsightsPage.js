@@ -134,9 +134,6 @@ const AIInsightsPage = () => {
                  <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2"><Sparkles className="text-purple-400"/> AI-Powered Insights</h2>
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     {/* Simplified controls for now */}
-                    <input type="date" className="input-style" />
-                    <input type="date" className="input-style" />
-                    <select className="input-style"><option>Workload Scores</option><option>Call-Outs</option></select>
                  </div>
                  <textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Ask a question about the selected data..." className="input-style w-full min-h-[80px] mb-4"></textarea>
                  <button onClick={handleAnalyze} className="btn-primary flex items-center gap-2" disabled={isLoading}>{isLoading ? 'Analyzing...' : 'Analyze'}</button>
