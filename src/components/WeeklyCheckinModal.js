@@ -60,19 +60,19 @@ const WeeklyCheckinModal = ({ isOpen, onClose, userProfile }) => {
                 </div>
                 <div>
                     <label className="label-style">What was your weekly high?</label>
-                    <textarea name="weeklyHigh" value={formData.weeklyHigh} onChange={handleChange} className="input-style" rows="3"></textarea>
+                    <textarea name="weeklyHigh" value={formData.weeklyHigh} onChange={handleChange} className="input-style" rows="2"></textarea>
                 </div>
                 <div>
                     <label className="label-style">What was your weekly low?</label>
-                    <textarea name="weeklyLow" value={formData.weeklyLow} onChange={handleChange} className="input-style" rows="3"></textarea>
+                    <textarea name="weeklyLow" value={formData.weeklyLow} onChange={handleChange} className="input-style" rows="2"></textarea>
                 </div>
                 <div>
                     <label className="label-style">Is there anyone that you would like to praise for being especially helpful or for doing an especially good job?</label>
-                    <textarea name="praise" value={formData.praise} onChange={handleChange} className="input-style" rows="3"></textarea>
+                    <textarea name="praise" value={formData.praise} onChange={handleChange} className="input-style" rows="2"></textarea>
                 </div>
                 <div>
                     <label className="label-style">Is there anything that you feel the leadership team needs to know or is there anything they can do for you?</label>
-                    <textarea name="feedback" value={formData.feedback} onChange={handleChange} className="input-style" rows="3"></textarea>
+                    <textarea name="feedback" value={formData.feedback} onChange={handleChange} className="input-style" rows="2"></textarea>
                 </div>
                 <div className="flex justify-end gap-4 pt-4">
                     <button type="button" onClick={onClose} className="btn-secondary">Cancel</button>
