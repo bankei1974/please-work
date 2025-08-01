@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useCollection } from '../hooks/useCollection';
-import { collection, getDocs, query } from 'firebase/firestore';
+import { collection, getDocs, query, addDoc } from 'firebase/firestore';
 import { Sparkles } from 'lucide-react';
 
 import { db } from '../firebase';
