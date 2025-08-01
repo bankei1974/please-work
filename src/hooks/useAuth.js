@@ -29,24 +29,12 @@ export default function useAuth() {
                 const usersRef = collection(db, 'users');
                 const q = query(usersRef, where("email", "==", currentUser.email));
 
-                const unsubscribeProfile = onSnapshot(q, async (snapshot) => {
+                const unsubscribeProfile = onSnapshot(q, (snapshot) => {
                     if (snapshot.empty) {
-                        try {
-                            const isManager = currentUser.email === 'manager@hospital.com';
-                            const newDoc = {
-                                email: currentUser.email,
-                                fullName: currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : `user_${currentUser.uid.substring(0,5)}`),
-                                role: isManager ? 'Manager' : 'Staff',
-                                createdAt: serverTimestamp(),
-                                authUid: currentUser.uid
-                            };
-                            await setDoc(doc(usersRef, currentUser.uid), newDoc);
-                            // The onSnapshot will trigger again with the new data, setting userProfile
-                        } catch (e) {
-                            console.error("Error creating user profile document:", e);
-                            setError("Error creating user profile.");
-                            setIsLoading(false);
-                        }
+                        // User profile doesn't exist yet. This is fine.
+                        // It will be created by StaffFormModal.
+                        setUserProfile(null);
+                        setIsLoading(false);
                     } else {
                         const profileDoc = snapshot.docs[0];
                         setUserProfile({ id: profileDoc.id, ...profileDoc.data() });
