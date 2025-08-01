@@ -15,6 +15,8 @@ const AIInsightsPage = () => {
     const { data: units } = useCollection(db, 'units');
     const { data: jobTitles } = useCollection(db, 'jobTitles');
     const { data: statuses } = useCollection(db, 'statuses');
+    const { data: staffingLevels } = useCollection(db, 'staffingLevels');
+    const { data: patientCensus } = useCollection(db, 'patientCensus');
 
     const handleAnalyze = async () => {
         setIsLoading(true);
@@ -27,6 +29,8 @@ const AIInsightsPage = () => {
         const unitsData = units;
         const jobTitlesData = jobTitles;
         const statusesData = statuses;
+        const staffingLevelsData = staffingLevels;
+        const patientCensusData = patientCensus;
 
         const prompt = `
             Based on the following data, please answer the user's question.
@@ -36,6 +40,8 @@ const AIInsightsPage = () => {
             Units: ${JSON.stringify(unitsData)}
             Job Titles: ${JSON.stringify(jobTitlesData)}
             Statuses: ${JSON.stringify(statusesData)}
+            Staffing Levels: ${JSON.stringify(staffingLevelsData)}
+            Patient Census: ${JSON.stringify(patientCensusData)}
             
             Question: ${question}
         `;
