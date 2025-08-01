@@ -18,6 +18,7 @@ const AIInsightsPage = () => {
     const { data: statuses } = useCollection(db, 'statuses');
     const { data: staffingLevels } = useCollection(db, 'staffingLevels');
     const { data: patientCensus } = useCollection(db, 'patientCensus');
+    const { data: weeklyCheckins } = useCollection(db, 'weeklyCheckins');
 
     const handleApproveSuggestion = async (suggestedShift) => {
         if (!window.confirm("Are you sure you want to approve and create this open shift?")) {
@@ -52,6 +53,7 @@ const AIInsightsPage = () => {
         const statusesData = statuses;
         const staffingLevelsData = staffingLevels;
         const patientCensusData = patientCensus;
+        const weeklyCheckinsData = weeklyCheckins;
 
         const prompt = `
             Based on the following data, please answer the user's question.
@@ -81,6 +83,7 @@ const AIInsightsPage = () => {
             Statuses: ${JSON.stringify(statusesData)}
             Staffing Levels: ${JSON.stringify(staffingLevelsData)}
             Patient Census: ${JSON.stringify(patientCensusData)}
+            Weekly Check-ins: ${JSON.stringify(weeklyCheckinsData)}
             
             Question: ${question}
         `;
