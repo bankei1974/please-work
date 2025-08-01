@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { collection, where, getDocs, query } from 'firebase/firestore';
+import { useCollection } from '../hooks/useCollection';
+import { collection, getDocs, query } from 'firebase/firestore';
 import { Sparkles } from 'lucide-react';
 
 import { db } from '../firebase';
@@ -9,20 +10,32 @@ const AIInsightsPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [question, setQuestion] = useState('');
 
+    const { data: shifts } = useCollection(db, 'shifts');
+    const { data: users } = useCollection(db, 'users');
+    const { data: units } = useCollection(db, 'units');
+    const { data: jobTitles } = useCollection(db, 'jobTitles');
+    const { data: statuses } = useCollection(db, 'statuses');
+
     const handleAnalyze = async () => {
         setIsLoading(true);
         setAnalysisResult('');
         
-        const shiftsRef = collection(db, "shifts");
-        const q = query(shiftsRef, where("workloadRating", ">", 0));
-        const querySnapshot = await getDocs(q);
-        const shiftsData = querySnapshot.docs.map(doc => doc.data());
+        // We now have all the data from the hooks.
+        // We will construct the prompt in the next step.
+        const shiftsData = shifts;
+        const usersData = users;
+        const unitsData = units;
+        const jobTitlesData = jobTitles;
+        const statusesData = statuses;
 
         const prompt = `
-            Based on the following shift data, please answer the user's question.
-            The data includes workload ratings from 1 (Very High) to 5 (Very Low).
+            Based on the following data, please answer the user's question.
             
-            Data: ${JSON.stringify(shiftsData)}
+            Shifts: ${JSON.stringify(shiftsData)}
+            Users: ${JSON.stringify(usersData)}
+            Units: ${JSON.stringify(unitsData)}
+            Job Titles: ${JSON.stringify(jobTitlesData)}
+            Statuses: ${JSON.stringify(statusesData)}
             
             Question: ${question}
         `;
