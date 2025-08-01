@@ -101,16 +101,24 @@ const MainApp = () => {
                 </div>
                 <nav className="flex-1 space-y-2 mt-8">
                     {isManager ? (<>
-                        <button onClick={() => setActivePage('management')} title={isSidebarCollapsed ? "Units, Roles, Statuses" : ""} className={`nav-link ${activePage === 'management' ? 'active' : ''}`}><Users /> {!isSidebarCollapsed && "Units, Roles, Statuses"}</button>
-                        <button onClick={() => setActivePage('staff-management')} title={isSidebarCollapsed ? "Staff Management" : ""} className={`nav-link ${activePage === 'staff-management' ? 'active' : ''}`}><Users /> {!isSidebarCollapsed && "Staff Management"}</button>
-                        <button onClick={() => setActivePage('scheduling')} title={isSidebarCollapsed ? "Staff Scheduling" : ""} className={`nav-link ${activePage === 'scheduling' ? 'active' : ''}`}><CalendarDays /> {!isSidebarCollapsed && "Staff Scheduling"}</button>
-                        <button onClick={() => setActivePage('staffing-levels')} title={isSidebarCollapsed ? "Staffing Levels" : ""} className={`nav-link ${activePage === 'staffing-levels' ? 'active' : ''}`}><TrendingUp /> {!isSidebarCollapsed && "Staffing Levels"}</button>
-                        <button onClick={() => setActivePage('reports')} title={isSidebarCollapsed ? "Reports" : ""} className={`nav-link ${activePage === 'reports' ? 'active' : ''}`}><BarChart2 /> {!isSidebarCollapsed && "Reports"}</button>
-                        <button onClick={() => setActivePage('ai-insights')} title={isSidebarCollapsed ? "AI Insights" : ""} className={`nav-link ${activePage === 'ai-insights' ? 'active' : ''}`}><Sparkles /> {!isSidebarCollapsed && "AI Insights"}</button>
-                        <button onClick={() => setActivePage('help-out-hub')} title={isSidebarCollapsed ? "Help Out Hub" : ""} className={`nav-link ${activePage === 'help-out-hub' ? 'active' : ''}`}><Handshake /> {!isSidebarCollapsed && "Help Out Hub"}</button>
+                        <button onClick={() => setActivePage('management')} title={isSidebarCollapsed ? "Central Hub" : ""} className={`nav-link ${activePage === 'management' ? 'active' : ''}`}>
+                            <Users />
+                            {!isSidebarCollapsed && (
+                                <div className="flex flex-col">
+                                    <span>Central Hub</span>
+                                    <span className="text-xs text-gray-400">units, roles, statuses</span>
+                                </div>
+                            )}
+                        </button>
+                        <button onClick={() => setActivePage('staff-management')} title={isSidebarCollapsed ? "Staff Hub" : ""} className={`nav-link ${activePage === 'staff-management' ? 'active' : ''}`}><Users /> {!isSidebarCollapsed && "Staff Hub"}</button>
+                        <button onClick={() => setActivePage('scheduling')} title={isSidebarCollapsed ? "Schedule Hub" : ""} className={`nav-link ${activePage === 'scheduling' ? 'active' : ''}`}><CalendarDays /> {!isSidebarCollapsed && "Schedule Hub"}</button>
+                        <button onClick={() => setActivePage('staffing-levels')} title={isSidebarCollapsed ? "Coverage Hub" : ""} className={`nav-link ${activePage === 'staffing-levels' ? 'active' : ''}`}><TrendingUp /> {!isSidebarCollapsed && "Coverage Hub"}</button>
+                        <button onClick={() => setActivePage('reports')} title={isSidebarCollapsed ? "Reports Hub" : ""} className={`nav-link ${activePage === 'reports' ? 'active' : ''}`}><BarChart2 /> {!isSidebarCollapsed && "Reports Hub"}</button>
+                        <button onClick={() => setActivePage('ai-insights')} title={isSidebarCollapsed ? "Insights Hub" : ""} className={`nav-link ${activePage === 'ai-insights' ? 'active' : ''}`}><Sparkles /> {!isSidebarCollapsed && "Insights Hub"}</button>
+                        <button onClick={() => setActivePage('help-out-hub')} title={isSidebarCollapsed ? "Help Hub" : ""} className={`nav-link ${activePage === 'help-out-hub' ? 'active' : ''}`}><Handshake /> {!isSidebarCollapsed && "Help Hub"}</button>
                     </>) : (<>
                         <button onClick={() => setActivePage('my-schedule')} title={isSidebarCollapsed ? "My Schedule" : ""} className={`nav-link ${activePage === 'my-schedule' ? 'active' : ''}`}><CalendarDays /> {!isSidebarCollapsed && "My Schedule"}</button>
-                        <button onClick={() => setActivePage('help-out-hub')} title={isSidebarCollapsed ? "Help Out Hub" : ""} className={`nav-link ${activePage === 'help-out-hub' ? 'active' : ''}`}><Handshake /> {!isSidebarCollapsed && "Help Out Hub"}</button>
+                        <button onClick={() => setActivePage('help-out-hub')} title={isSidebarCollapsed ? "Help Hub" : ""} className={`nav-link ${activePage === 'help-out-hub' ? 'active' : ''}`}><Handshake /> {!isSidebarCollapsed && "Help Hub"}</button>
                         <button onClick={() => setActivePage('my-karma')} title={isSidebarCollapsed ? "My Karma" : ""} className={`nav-link ${activePage === 'my-karma' ? 'active' : ''}`}><Sparkles /> {!isSidebarCollapsed && "My Karma"}</button>
                     </>)}
                 </nav>
