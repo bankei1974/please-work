@@ -131,6 +131,7 @@ const MainApp = () => {
                 case 'my-schedule': return <NewStaffSchedulingPage />;
                 case 'help-out-hub': return <HelpOutHubPage />;
                 case 'my-karma': return <StaffKarmaPage />;
+                case 'happening-hub': return <HappeningHubPage />;
                 default: return <NewStaffSchedulingPage />;
             }
         }
