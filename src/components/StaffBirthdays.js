@@ -21,7 +21,7 @@ const StaffBirthdays = ({ selectedUnits }) => {
                 {birthdays.map(member => (
                     <li key={member.id} className="flex justify-between items-center bg-gray-700/50 p-2 rounded-md">
                         <span>{member.fullName}</span>
-                        <span>{new Date(member.birthdate).toLocaleDateString()}</span>
+                        <span>{new Date(member.birthdate).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</span>
                     </li>
                 ))}
             </ul>
