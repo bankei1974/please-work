@@ -28,6 +28,9 @@ const StaffProfile = ({ db, staffId }) => {
                 <div><p className="label-style">Contact Info</p><p>{staffMember.contactInfo}</p></div>
                 <div><p className="label-style">Role</p><p>{staffMember.role}</p></div>
                 <div><p className="label-style">Staff Karma</p><p>{staffMember.staffKarma || 0}</p></div>
+                <div><p className="label-style">Birthdate</p><p>{staffMember.birthdate}</p></div>
+                <div><p className="label-style">Employee ID</p><p>{staffMember.employeeId}</p></div>
+                <div><p className="label-style">COA Hire Date</p><p>{staffMember.coaHireDate}</p></div>
             </div>
         </div>
     );
