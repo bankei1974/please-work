@@ -122,5 +122,13 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if isManager();
     }
+
+    // Patient Census Collection Rules
+    match /patientCensus/{censusId} {
+      // Any authenticated user can read patient census data
+      allow read: if request.auth != null;
+      // Only managers can create, update, or delete patient census data
+      allow write: if isManager();
+    }
   }
 }
