@@ -44,47 +44,47 @@ const ExpectedPatientCensus = ({ selectedUnits, units, isManager }) => {
     };
 
     return (
-        <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
-            <h3 className="text-2xl font-semibold mb-4">Expected Patient Census for {today}</h3>
-            <div className="space-y-4">
+        <div className="bg-gray-800 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">Expected Census</h3>
+            <div className="space-y-2 text-sm">
                 {selectedUnits.map(unitId => (
-                    <div key={unitId} className="bg-gray-700/50 p-4 rounded-md">
-                        <h4 className="text-lg font-semibold mb-2">{units.find(u => u.id === unitId)?.name}</h4>
-                        <div className="grid grid-cols-3 gap-4">
+                    <div key={unitId} className="bg-gray-700/50 p-2 rounded-md">
+                        <h4 className="font-semibold mb-1">{units.find(u => u.id === unitId)?.name}</h4>
+                        <div className="grid grid-cols-3 gap-2">
                             <div>
-                                <label className="label-style">Total</label>
+                                <label className="label-style text-xs">Total</label>
                                 <input
                                     type="number"
                                     value={censusData[unitId]?.total || ''}
                                     onChange={(e) => handleChange(unitId, 'total', e.target.value)}
-                                    className="input-style"
+                                    className="input-style p-1 text-xs"
                                     disabled={!isManager}
                                 />
                             </div>
                             <div>
-                                <label className="label-style">Admissions</label>
+                                <label className="label-style text-xs">Admissions</label>
                                 <input
                                     type="number"
                                     value={censusData[unitId]?.admissions || ''}
                                     onChange={(e) => handleChange(unitId, 'admissions', e.target.value)}
-                                    className="input-style"
+                                    className="input-style p-1 text-xs"
                                     disabled={!isManager}
                                 />
                             </div>
                             <div>
-                                <label className="label-style">Discharges</label>
+                                <label className="label-style text-xs">Discharges</label>
                                 <input
                                     type="number"
                                     value={censusData[unitId]?.discharges || ''}
                                     onChange={(e) => handleChange(unitId, 'discharges', e.target.value)}
-                                    className="input-style"
+                                    className="input-style p-1 text-xs"
                                     disabled={!isManager}
                                 />
                             </div>
                         </div>
                         {isManager && (
-                            <div className="flex justify-end mt-4">
-                                <button onClick={() => handleSave(unitId)} className="btn-primary">Save</button>
+                            <div className="flex justify-end mt-2">
+                                <button onClick={() => handleSave(unitId)} className="btn-primary text-xs px-2 py-1">Save</button>
                             </div>
                         )}
                     </div>

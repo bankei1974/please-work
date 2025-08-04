@@ -41,22 +41,22 @@ const DailyUpdates = ({ selectedUnits, units, isManager }) => {
     };
 
     return (
-        <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
-            <h3 className="text-2xl font-semibold mb-4">Daily Updates for {today}</h3>
-            <div className="space-y-4">
+        <div className="bg-gray-800 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">Daily Updates</h3>
+            <div className="space-y-2 text-sm">
                 {selectedUnits.map(unitId => (
-                    <div key={unitId} className="bg-gray-700/50 p-4 rounded-md">
-                        <h4 className="text-lg font-semibold mb-2">{units.find(u => u.id === unitId)?.name}</h4>
+                    <div key={unitId} className="bg-gray-700/50 p-2 rounded-md">
+                        <h4 className="font-semibold mb-1">{units.find(u => u.id === unitId)?.name}</h4>
                         <textarea
                             value={updates[unitId] || ''}
                             onChange={(e) => handleChange(unitId, e.target.value)}
-                            className="input-style w-full"
-                            rows="4"
+                            className="input-style w-full p-1 text-xs"
+                            rows="2"
                             disabled={!isManager}
                         ></textarea>
                         {isManager && (
-                            <div className="flex justify-end mt-4">
-                                <button onClick={() => handleSave(unitId)} className="btn-primary">Save</button>
+                            <div className="flex justify-end mt-2">
+                                <button onClick={() => handleSave(unitId)} className="btn-primary text-xs px-2 py-1">Save</button>
                             </div>
                         )}
                     </div>

@@ -15,11 +15,11 @@ const StaffBirthdays = ({ selectedUnits }) => {
     });
 
     return (
-        <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
-            <h3 className="text-2xl font-semibold mb-4">This Month's Birthdays</h3>
-            <ul className="space-y-2">
+        <div className="bg-gray-800 p-4 rounded-lg h-full">
+            <h3 className="text-lg font-semibold mb-2">Birthdays</h3>
+            <ul className="space-y-1 text-sm">
                 {birthdays.map(member => (
-                    <li key={member.id} className="flex justify-between items-center bg-gray-700/50 p-2 rounded-md">
+                    <li key={member.id} className="flex justify-between items-center bg-gray-700/50 p-1 rounded-md">
                         <span>{member.fullName}</span>
                         <span>{new Date(member.birthdate).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</span>
                     </li>
