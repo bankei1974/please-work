@@ -202,6 +202,7 @@ const MainApp = () => {
                         <button onClick={() => setActivePage('my-schedule')} title={isSidebarCollapsed ? "My Schedule" : ""} className={`nav-link ${activePage === 'my-schedule' ? 'active' : ''}`}><CalendarDays /> {!isSidebarCollapsed && "My Schedule"}</button>
                         <button onClick={() => setActivePage('help-out-hub')} title={isSidebarCollapsed ? "Help Hub" : ""} className={`nav-link ${activePage === 'help-out-hub' ? 'active' : ''}`}><Handshake /> {!isSidebarCollapsed && "Help Hub"}</button>
                         <button onClick={() => setActivePage('my-karma')} title={isSidebarCollapsed ? "My Karma" : ""} className={`nav-link ${activePage === 'my-karma' ? 'active' : ''}`}><Sparkles /> {!isSidebarCollapsed && "My Karma"}</button>
+                        <button onClick={() => setActivePage('happening-hub')} title={isSidebarCollapsed ? "Happening Hub" : ""} className={`nav-link ${activePage === 'happening-hub' ? 'active' : ''}`}><TrendingUp /> {!isSidebarCollapsed && "Happening Hub"}</button>
                     </>)}
                 </nav>
                 <div className="mt-auto">

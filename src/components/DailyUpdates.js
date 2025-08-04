@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
-const DailyUpdates = ({ selectedUnits, units }) => {
+const DailyUpdates = ({ selectedUnits, units, isManager }) => {
     const [updates, setUpdates] = useState({});
     const today = new Date().toISOString().split('T')[0];
 
@@ -52,10 +52,13 @@ const DailyUpdates = ({ selectedUnits, units }) => {
                             onChange={(e) => handleChange(unitId, e.target.value)}
                             className="input-style w-full"
                             rows="4"
+                            disabled={!isManager}
                         ></textarea>
-                        <div className="flex justify-end mt-4">
-                            <button onClick={() => handleSave(unitId)} className="btn-primary">Save</button>
-                        </div>
+                        {isManager && (
+                            <div className="flex justify-end mt-4">
+                                <button onClick={() => handleSave(unitId)} className="btn-primary">Save</button>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>

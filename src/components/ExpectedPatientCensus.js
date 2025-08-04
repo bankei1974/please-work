@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
-const ExpectedPatientCensus = ({ selectedUnits, units }) => {
+const ExpectedPatientCensus = ({ selectedUnits, units, isManager }) => {
     const [censusData, setCensusData] = useState({});
     const today = new Date().toISOString().split('T')[0];
 
@@ -58,6 +58,7 @@ const ExpectedPatientCensus = ({ selectedUnits, units }) => {
                                     value={censusData[unitId]?.total || ''}
                                     onChange={(e) => handleChange(unitId, 'total', e.target.value)}
                                     className="input-style"
+                                    disabled={!isManager}
                                 />
                             </div>
                             <div>
@@ -67,6 +68,7 @@ const ExpectedPatientCensus = ({ selectedUnits, units }) => {
                                     value={censusData[unitId]?.admissions || ''}
                                     onChange={(e) => handleChange(unitId, 'admissions', e.target.value)}
                                     className="input-style"
+                                    disabled={!isManager}
                                 />
                             </div>
                             <div>
@@ -76,12 +78,15 @@ const ExpectedPatientCensus = ({ selectedUnits, units }) => {
                                     value={censusData[unitId]?.discharges || ''}
                                     onChange={(e) => handleChange(unitId, 'discharges', e.target.value)}
                                     className="input-style"
+                                    disabled={!isManager}
                                 />
                             </div>
                         </div>
-                        <div className="flex justify-end mt-4">
-                            <button onClick={() => handleSave(unitId)} className="btn-primary">Save</button>
-                        </div>
+                        {isManager && (
+                            <div className="flex justify-end mt-4">
+                                <button onClick={() => handleSave(unitId)} className="btn-primary">Save</button>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>

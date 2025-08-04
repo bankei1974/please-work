@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuthContext } from '../context/AuthContext';
 import { useCollection } from '../hooks/useCollection';
 import { db } from '../firebase';
 import DailyStaffingGraph from './DailyStaffingGraph';
@@ -8,6 +9,8 @@ import ExpectedPatientCensus from './ExpectedPatientCensus';
 import DailyUpdates from './DailyUpdates';
 
 const HappeningHubPage = () => {
+    const { userProfile } = useAuthContext();
+    const isManager = userProfile.role === 'Manager';
     const [selectedUnits, setSelectedUnits] = useState([]);
     const { data: units } = useCollection(db, 'units');
 
@@ -31,8 +34,8 @@ const HappeningHubPage = () => {
                 <DailyStaffingGraph selectedUnits={selectedUnits} />
                 <KarmaLeaderboard selectedUnits={selectedUnits} />
                 <StaffBirthdays selectedUnits={selectedUnits} />
-                <ExpectedPatientCensus selectedUnits={selectedUnits} units={units} />
-                <DailyUpdates selectedUnits={selectedUnits} units={units} />
+                <ExpectedPatientCensus selectedUnits={selectedUnits} units={units} isManager={isManager} />
+                <DailyUpdates selectedUnits={selectedUnits} units={units} isManager={isManager} />
             </div>
         </main>
     );
