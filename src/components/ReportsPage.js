@@ -3,6 +3,7 @@ import CustomTooltip from './CustomTooltip';
 import DailyStaffingGraph from './DailyStaffingGraph';
 import StaffingLevelsModal from './StaffingLevelsModal';
 import PatientCensusModal from './PatientCensusModal';
+import PatientCensusTable from './PatientCensusTable';
 import { useCollection } from '../hooks/useCollection';
 import { where, doc, updateDoc } from 'firebase/firestore';
 import { createUtcDateFromCentralTime } from '../utils/timezoneHelpers';
@@ -46,8 +47,25 @@ const ReportsPage = () => {
     }, [selectedUnit, selectedDate, currentUserProfile, db]);
 
     const patientCensusQuery = useMemo(() => {
-        return [where("date", "==", selectedDate)];
-    }, [selectedDate]);
+        if (selectedUnit && selectedDate) {
+            const docId = `${selectedDate}_${selectedUnit}`;
+            // This is a way to query for a specific document by its ID.
+            // Firestore's `where` clause doesn't directly support querying by ID in a collection query,
+            // so we use the special `__name__` field.
+            return [where('__name__', '==', docId)];
+        }
+        // Return a query that will never match anything if no unit or date is selected
+        return [where('__name__', '==', 'no-selection')];
+    }, [selectedDate, selectedUnit]);
+
+    const { data: patientCensusDocs } = useCollection(db, 'patientCensus', patientCensusQuery);
+
+    const patientCensusDataForGraph = useMemo(() => {
+        if (patientCensusDocs && patientCensusDocs.length > 0 && patientCensusDocs[0].census) {
+            return patientCensusDocs[0].census;
+        }
+        return {};
+    }, [patientCensusDocs]);
 
     const staffingLevelsQuery = useMemo(() => {
         const queries = [];
@@ -178,20 +196,18 @@ const ReportsPage = () => {
     }, [shifts, staffList, selectedDate]);
 
     const graphData = useMemo(() => {
-            const mergedData = productiveStaffData.map(prod => {
-                const censusEntry = patientCensusEntries.find(pc => {
-                    return pc.startTime <= prod.time && pc.endTime >= prod.time;
-                });
-                const staffingLevelEntry = aggregatedStaffingLevels.find(sl => sl.time === prod.time);
-                return {
-                    ...prod,
-                    'Patient Census': censusEntry ? censusEntry.censusCount : 0,
-                    'Minimum Staff': staffingLevelEntry ? staffingLevelEntry.min : 0,
-                    'Optimal Staff': staffingLevelEntry ? staffingLevelEntry.optimal : 0,
-                };
-            });
-            return mergedData;
-        }, [productiveStaffData, patientCensusEntries, aggregatedStaffingLevels]);
+        const mergedData = productiveStaffData.map(prod => {
+            const censusCount = patientCensusDataForGraph[prod.time] ? parseInt(patientCensusDataForGraph[prod.time], 10) : 0;
+            const staffingLevelEntry = aggregatedStaffingLevels.find(sl => sl.time === prod.time);
+            return {
+                ...prod,
+                'Patient Census': isNaN(censusCount) ? 0 : censusCount,
+                'Minimum Staff': staffingLevelEntry ? staffingLevelEntry.min : 0,
+                'Optimal Staff': staffingLevelEntry ? staffingLevelEntry.optimal : 0,
+            };
+        });
+        return mergedData;
+    }, [productiveStaffData, patientCensusDataForGraph, aggregatedStaffingLevels]);
 
     return (
         <main className="p-8 overflow-y-auto flex-1 flex flex-col gap-8">
@@ -222,6 +238,9 @@ const ReportsPage = () => {
                     <DailyStaffingGraph graphData={graphData} />
                 </div>
             </div>
+            {selectedUnit && selectedDate && (
+                <PatientCensusTable selectedUnit={units.find(u => u.id === selectedUnit)} selectedDate={selectedDate} />
+            )}
             <StaffingLevelsModal isOpen={isStaffingLevelsModalOpen} onClose={() => setIsStaffingLevelsModalOpen(false)} db={db} />
             <PatientCensusModal isOpen={isPatientCensusModalOpen} onClose={() => setIsPatientCensusModalOpen(false)} db={db} selectedDate={selectedDate} />
         </main>
