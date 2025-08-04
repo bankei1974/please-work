@@ -138,5 +138,21 @@ service cloud.firestore {
       // Only managers can create, update, or delete staffing level templates
       allow write: if isManager();
     }
+
+    // Expected Census Collection Rules
+    match /expectedCensus/{censusId} {
+      // Any authenticated user can read expected census data
+      allow read: if request.auth != null;
+      // Only managers can create, update, or delete expected census data
+      allow write: if isManager();
+    }
+
+    // Daily Updates Collection Rules
+    match /dailyUpdates/{updateId} {
+      // Any authenticated user can read daily updates
+      allow read: if request.auth != null;
+      // Only managers can create, update, or delete daily updates
+      allow write: if isManager();
+    }
   }
 }
