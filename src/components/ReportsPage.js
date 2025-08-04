@@ -4,6 +4,7 @@ import DailyStaffingGraph from './DailyStaffingGraph';
 import StaffingLevelsModal from './StaffingLevelsModal';
 import PatientCensusModal from './PatientCensusModal';
 import PatientCensusTable from './PatientCensusTable';
+import StaffingLevelsTable from './StaffingLevelsTable';
 import { useCollection } from '../hooks/useCollection';
 import { where, doc, updateDoc } from 'firebase/firestore';
 import { createUtcDateFromCentralTime } from '../utils/timezoneHelpers';
@@ -13,7 +14,6 @@ import { useAuthContext } from '../context/AuthContext';
 
 const ReportsPage = () => {
     const { userProfile: currentUserProfile } = useAuthContext();
-    const [isStaffingLevelsModalOpen, setIsStaffingLevelsModalOpen] = useState(false);
     const [isPatientCensusModalOpen, setIsPatientCensusModalOpen] = useState(false);
     const [selectedUnit, setSelectedUnit] = useState('');
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); // Default to today
@@ -68,46 +68,21 @@ const ReportsPage = () => {
     }, [patientCensusDocs]);
 
     const staffingLevelsQuery = useMemo(() => {
-        const queries = [];
-        if (selectedUnit) {
-            queries.push(where("unitId", "==", selectedUnit));
+        if (selectedUnit && selectedDate) {
+            const docId = `${selectedDate}_${selectedUnit}`;
+            return [where('__name__', '==', docId)];
         }
-        // Fetch all levels up to and including the selected date, ordered by date descending
-        queries.push(where("date", "<=", selectedDate));
-        return queries;
+        return [where('__name__', '==', 'no-selection')];
     }, [selectedDate, selectedUnit]);
 
-    const { data: patientCensusEntries } = useCollection(db, 'patientCensus', patientCensusQuery);
-    const { data: staffingLevels } = useCollection(db, 'staffingLevels', staffingLevelsQuery, ["date", "desc"]);
+    const { data: staffingLevelsDocs } = useCollection(db, 'staffingLevels', staffingLevelsQuery);
 
-    const aggregatedStaffingLevels = useMemo(() => {
-        const data = [];
-        for (let h = 0; h < 24; h++) {
-            for (let m = 0; m < 60; m += 15) {
-                const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-                data.push({ time, min: 0, optimal: 0 });
-            }
+    const staffingLevelsDataForGraph = useMemo(() => {
+        if (staffingLevelsDocs && staffingLevelsDocs.length > 0 && staffingLevelsDocs[0].levels) {
+            return staffingLevelsDocs[0].levels;
         }
-
-        // Group levels by time and then find the most recent for each time slot
-        const latestLevels = {};
-        staffingLevels.forEach(level => {
-            if (!latestLevels[level.time] || level.date > latestLevels[level.time].date) {
-                latestLevels[level.time] = level;
-            }
-        });
-
-        // Apply the latest levels to the data array
-        data.forEach(interval => {
-            const latestLevel = latestLevels[interval.time];
-            if (latestLevel) {
-                interval.min = latestLevel.min;
-                interval.optimal = latestLevel.optimal;
-            }
-        });
-
-        return data;
-    }, [staffingLevels]);
+        return {};
+    }, [staffingLevelsDocs]);
 
     // This will need to be derived from shifts data later
     const shiftsQuery = useMemo(() => {
@@ -198,16 +173,17 @@ const ReportsPage = () => {
     const graphData = useMemo(() => {
         const mergedData = productiveStaffData.map(prod => {
             const censusCount = patientCensusDataForGraph[prod.time] ? parseInt(patientCensusDataForGraph[prod.time], 10) : 0;
-            const staffingLevelEntry = aggregatedStaffingLevels.find(sl => sl.time === prod.time);
+            const minStaff = staffingLevelsDataForGraph[prod.time] ? parseInt(staffingLevelsDataForGraph[prod.time].min, 10) : 0;
+            const optimalStaff = staffingLevelsDataForGraph[prod.time] ? parseInt(staffingLevelsDataForGraph[prod.time].optimal, 10) : 0;
             return {
                 ...prod,
                 'Patient Census': isNaN(censusCount) ? 0 : censusCount,
-                'Minimum Staff': staffingLevelEntry ? staffingLevelEntry.min : 0,
-                'Optimal Staff': staffingLevelEntry ? staffingLevelEntry.optimal : 0,
+                'Minimum Staff': isNaN(minStaff) ? 0 : minStaff,
+                'Optimal Staff': isNaN(optimalStaff) ? 0 : optimalStaff,
             };
         });
         return mergedData;
-    }, [productiveStaffData, patientCensusDataForGraph, aggregatedStaffingLevels]);
+    }, [productiveStaffData, patientCensusDataForGraph, staffingLevelsDataForGraph]);
 
     return (
         <main className="p-8 overflow-y-auto flex-1 flex flex-col gap-8">
@@ -241,7 +217,9 @@ const ReportsPage = () => {
             {selectedUnit && selectedDate && (
                 <PatientCensusTable selectedUnit={units.find(u => u.id === selectedUnit)} selectedDate={selectedDate} />
             )}
-            <StaffingLevelsModal isOpen={isStaffingLevelsModalOpen} onClose={() => setIsStaffingLevelsModalOpen(false)} db={db} />
+            {selectedUnit && selectedDate && (
+                <StaffingLevelsTable selectedUnit={units.find(u => u.id === selectedUnit)} selectedDate={selectedDate} />
+            )}
             <PatientCensusModal isOpen={isPatientCensusModalOpen} onClose={() => setIsPatientCensusModalOpen(false)} db={db} selectedDate={selectedDate} />
         </main>
     );
