@@ -77,12 +77,24 @@ const ReportsPage = () => {
 
     const { data: staffingLevelsDocs } = useCollection(db, 'staffingLevels', staffingLevelsQuery);
 
+    const staffingLevelTemplateQuery = useMemo(() => {
+        if (selectedUnit) {
+            return [where('__name__', '==', selectedUnit)];
+        }
+        return [where('__name__', '==', 'no-selection')];
+    }, [selectedUnit]);
+
+    const { data: staffingLevelTemplateDocs } = useCollection(db, 'staffingLevelTemplates', staffingLevelTemplateQuery);
+
     const staffingLevelsDataForGraph = useMemo(() => {
         if (staffingLevelsDocs && staffingLevelsDocs.length > 0 && staffingLevelsDocs[0].levels) {
             return staffingLevelsDocs[0].levels;
         }
+        if (staffingLevelTemplateDocs && staffingLevelTemplateDocs.length > 0 && staffingLevelTemplateDocs[0].levels) {
+            return staffingLevelTemplateDocs[0].levels;
+        }
         return {};
-    }, [staffingLevelsDocs]);
+    }, [staffingLevelsDocs, staffingLevelTemplateDocs]);
 
     // This will need to be derived from shifts data later
     const shiftsQuery = useMemo(() => {

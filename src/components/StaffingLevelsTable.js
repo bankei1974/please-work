@@ -40,9 +40,12 @@ const StaffingLevelsTable = ({ selectedUnit, selectedDate }) => {
 
     const handleSave = async () => {
         if (selectedUnit && selectedDate) {
-            const docId = `${selectedDate}_${selectedUnit.id}`;
-            const docRef = doc(db, 'staffingLevels', docId);
-            await setDoc(docRef, { levels: staffingLevels }, { merge: true });
+            const dateDocRef = doc(db, 'staffingLevels', `${selectedDate}_${selectedUnit.id}`);
+            await setDoc(dateDocRef, { levels: staffingLevels }, { merge: true });
+
+            const templateDocRef = doc(db, 'staffingLevelTemplates', selectedUnit.id);
+            await setDoc(templateDocRef, { levels: staffingLevels, lastUpdated: new Date() }, { merge: true });
+
             alert('Staffing levels saved successfully!');
         }
     };

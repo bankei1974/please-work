@@ -130,5 +130,13 @@ service cloud.firestore {
       // Only managers can create, update, or delete patient census data
       allow write: if isManager();
     }
+
+    // Staffing Level Templates Collection Rules
+    match /staffingLevelTemplates/{templateId} {
+      // Any authenticated user can read staffing level templates
+      allow read: if request.auth != null;
+      // Only managers can create, update, or delete staffing level templates
+      allow write: if isManager();
+    }
   }
 }
