@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
+import { ChevronUp, ChevronDown } from 'lucide-react';
+
 const PatientCensusTable = ({ selectedUnit, selectedDate }) => {
     const [censusData, setCensusData] = useState({});
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -52,23 +55,32 @@ const PatientCensusTable = ({ selectedUnit, selectedDate }) => {
 
     return (
         <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">Patient Census for {selectedUnit?.name} on {selectedDate}</h3>
-            <div className="grid grid-cols-6 gap-4">
-                {timeIntervals.map(time => (
-                    <div key={time} className="flex items-center gap-2">
-                        <label className="w-16">{time}</label>
-                        <input
-                            type="number"
-                            value={censusData[time] || ''}
-                            onChange={(e) => handleCensusChange(time, e.target.value)}
-                            className="input-style w-24"
-                        />
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Patient Census for {selectedUnit?.name} on {selectedDate}</h3>
+                <button onClick={() => setIsCollapsed(!isCollapsed)} className="text-gray-400 hover:text-white">
+                    {isCollapsed ? <ChevronDown /> : <ChevronUp />}
+                </button>
+            </div>
+            {!isCollapsed && (
+                <>
+                    <div className="grid grid-cols-6 gap-4">
+                        {timeIntervals.map(time => (
+                            <div key={time} className="flex items-center gap-2">
+                                <label className="w-16">{time}</label>
+                                <input
+                                    type="number"
+                                    value={censusData[time] || ''}
+                                    onChange={(e) => handleCensusChange(time, e.target.value)}
+                                    className="input-style w-24"
+                                />
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
-            <div className="flex justify-end mt-4">
-                <button onClick={handleSave} className="btn-primary">Save Census Data</button>
-            </div>
+                    <div className="flex justify-end mt-4">
+                        <button onClick={handleSave} className="btn-primary">Save Census Data</button>
+                    </div>
+                </>
+            )}
         </div>
     );
 };

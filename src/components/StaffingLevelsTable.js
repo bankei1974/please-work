@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
+import { ChevronUp, ChevronDown } from 'lucide-react';
+
 const StaffingLevelsTable = ({ selectedUnit, selectedDate }) => {
     const [staffingLevels, setStaffingLevels] = useState({});
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -58,31 +61,40 @@ const StaffingLevelsTable = ({ selectedUnit, selectedDate }) => {
 
     return (
         <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">Staffing Levels for {selectedUnit?.name} on {selectedDate}</h3>
-            <div className="grid grid-cols-4 gap-4">
-                {timeIntervals.map(time => (
-                    <div key={time} className="flex items-center gap-2">
-                        <label className="w-16">{time}</label>
-                        <input
-                            type="number"
-                            placeholder="Min"
-                            value={staffingLevels[time]?.min || ''}
-                            onChange={(e) => handleLevelChange(time, 'min', e.target.value)}
-                            className="input-style w-20"
-                        />
-                        <input
-                            type="number"
-                            placeholder="Optimal"
-                            value={staffingLevels[time]?.optimal || ''}
-                            onChange={(e) => handleLevelChange(time, 'optimal', e.target.value)}
-                            className="input-style w-20"
-                        />
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Staffing Levels for {selectedUnit?.name} on {selectedDate}</h3>
+                <button onClick={() => setIsCollapsed(!isCollapsed)} className="text-gray-400 hover:text-white">
+                    {isCollapsed ? <ChevronDown /> : <ChevronUp />}
+                </button>
+            </div>
+            {!isCollapsed && (
+                <>
+                    <div className="grid grid-cols-4 gap-4">
+                        {timeIntervals.map(time => (
+                            <div key={time} className="flex items-center gap-2">
+                                <label className="w-16">{time}</label>
+                                <input
+                                    type="number"
+                                    placeholder="Min"
+                                    value={staffingLevels[time]?.min || ''}
+                                    onChange={(e) => handleLevelChange(time, 'min', e.target.value)}
+                                    className="input-style w-20"
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="Optimal"
+                                    value={staffingLevels[time]?.optimal || ''}
+                                    onChange={(e) => handleLevelChange(time, 'optimal', e.target.value)}
+                                    className="input-style w-20"
+                                />
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
-            <div className="flex justify-end mt-4">
-                <button onClick={handleSave} className="btn-primary">Save Staffing Levels</button>
-            </div>
+                    <div className="flex justify-end mt-4">
+                        <button onClick={handleSave} className="btn-primary">Save Staffing Levels</button>
+                    </div>
+                </>
+            )}
         </div>
     );
 };
