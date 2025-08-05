@@ -5,6 +5,7 @@ import { db } from '../firebase';
 import { where } from 'firebase/firestore';
 import FourWeekSchedule from './FourWeekSchedule';
 import * as XLSX from 'xlsx/xlsx.mjs';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 
 const PrintHubPage = () => {
     const [scheduleType, setScheduleType] = useState('daily');
@@ -12,6 +13,9 @@ const PrintHubPage = () => {
     const [selectedUnits, setSelectedUnits] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [selectedStatuses, setSelectedStatuses] = useState([]);
+    const [isUnitFilterExpanded, setIsUnitFilterExpanded] = useState(false);
+    const [isRoleFilterExpanded, setIsRoleFilterExpanded] = useState(false);
+    const [isStatusFilterExpanded, setIsStatusFilterExpanded] = useState(false);
 
     const { data: units } = useCollection(db, 'units');
     const { data: jobTitles } = useCollection(db, 'jobTitles');
@@ -54,18 +58,24 @@ const PrintHubPage = () => {
     const { data: staff } = useCollection(db, 'users');
 
     const handleUnitChange = (e) => {
-        const value = Array.from(e.target.selectedOptions, option => option.value);
-        setSelectedUnits(value);
+        const { value, checked } = e.target;
+        setSelectedUnits(prev =>
+            checked ? [...prev, value] : prev.filter(u => u !== value)
+        );
     };
 
     const handleRoleChange = (e) => {
-        const value = Array.from(e.target.selectedOptions, option => option.value);
-        setSelectedRoles(value);
+        const { value, checked } = e.target;
+        setSelectedRoles(prev =>
+            checked ? [...prev, value] : prev.filter(r => r !== value)
+        );
     };
 
     const handleStatusChange = (e) => {
-        const value = Array.from(e.target.selectedOptions, option => option.value);
-        setSelectedStatuses(value);
+        const { value, checked } = e.target;
+        setSelectedStatuses(prev =>
+            checked ? [...prev, value] : prev.filter(s => s !== value)
+        );
     };
 
     const handlePrint = () => {
@@ -95,8 +105,8 @@ const PrintHubPage = () => {
     return (
         <main className="p-8 overflow-y-auto">
             <h1 className="text-4xl font-bold text-white mb-8">Print Hub</h1>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
                     <label className="label-style">Schedule Type:</label>
                     <div className="flex gap-4">
                         <label className="flex items-center gap-1">
@@ -109,33 +119,81 @@ const PrintHubPage = () => {
                         </label>
                     </div>
                 </div>
-                <div>
+                <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
                     <label className="label-style">Select Date:</label>
                     <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="input-style" />
                 </div>
-                <div>
-                    <label className="label-style">Select Units:</label>
-                    <select multiple value={selectedUnits} onChange={handleUnitChange} className="input-style">
-                        {units.map(unit => (
-                            <option key={unit.id} value={unit.id}>{unit.name}</option>
-                        ))}
-                    </select>
+                <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                    <h3 className="text-lg font-semibold text-white mb-2 flex justify-between items-center">
+                        Filter by Unit
+                        <button onClick={() => setIsUnitFilterExpanded(!isUnitFilterExpanded)} className="text-gray-400 hover:text-white text-sm">
+                            {isUnitFilterExpanded ? <ChevronUp /> : <ChevronDown />}
+                        </button>
+                    </h3>
+                    {isUnitFilterExpanded && (
+                        <div className="flex flex-wrap gap-2">
+                            {units.map(unit => (
+                                <label key={unit.id} className="flex items-center gap-1 text-white text-sm">
+                                    <input
+                                        type="checkbox"
+                                        value={unit.id}
+                                        checked={selectedUnits.includes(unit.id)}
+                                        onChange={handleUnitChange}
+                                        className="h-4 w-4 rounded"
+                                    />
+                                    {unit.name}
+                                </label>
+                            ))}
+                        </div>
+                    )}
                 </div>
-                <div>
-                    <label className="label-style">Select Roles:</label>
-                    <select multiple value={selectedRoles} onChange={handleRoleChange} className="input-style">
-                        {jobTitles.map(role => (
-                            <option key={role.id} value={role.name}>{role.name}</option>
-                        ))}
-                    </select>
+                <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                    <h3 className="text-lg font-semibold text-white mb-2 flex justify-between items-center">
+                        Filter by Role
+                        <button onClick={() => setIsRoleFilterExpanded(!isRoleFilterExpanded)} className="text-gray-400 hover:text-white text-sm">
+                            {isRoleFilterExpanded ? <ChevronUp /> : <ChevronDown />}
+                        </button>
+                    </h3>
+                    {isRoleFilterExpanded && (
+                        <div className="flex flex-wrap gap-2">
+                            {jobTitles.map(role => (
+                                <label key={role.id} className="flex items-center gap-1 text-white text-sm">
+                                    <input
+                                        type="checkbox"
+                                        value={role.name}
+                                        checked={selectedRoles.includes(role.name)}
+                                        onChange={handleRoleChange}
+                                        className="h-4 w-4 rounded"
+                                    />
+                                    {role.name}
+                                </label>
+                            ))}
+                        </div>
+                    )}
                 </div>
-                <div>
-                    <label className="label-style">Select Statuses:</label>
-                    <select multiple value={selectedStatuses} onChange={handleStatusChange} className="input-style">
-                        {statuses.map(status => (
-                            <option key={status.id} value={status.name}>{status.name}</option>
-                        ))}
-                    </select>
+                <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                    <h3 className="text-lg font-semibold text-white mb-2 flex justify-between items-center">
+                        Filter by Status
+                        <button onClick={() => setIsStatusFilterExpanded(!isStatusFilterExpanded)} className="text-gray-400 hover:text-white text-sm">
+                            {isStatusFilterExpanded ? <ChevronUp /> : <ChevronDown />}
+                        </button>
+                    </h3>
+                    {isStatusFilterExpanded && (
+                        <div className="flex flex-wrap gap-2">
+                            {statuses.map(status => (
+                                <label key={status.id} className="flex items-center gap-1 text-white text-sm">
+                                    <input
+                                        type="checkbox"
+                                        value={status.name}
+                                        checked={selectedStatuses.includes(status.name)}
+                                        onChange={handleStatusChange}
+                                        className="h-4 w-4 rounded"
+                                    />
+                                    {status.name}
+                                </label>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="flex justify-end mb-4 gap-4">
