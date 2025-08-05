@@ -13,45 +13,48 @@ const PrintHubPage = () => {
     const [selectedUnits, setSelectedUnits] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [selectedStatuses, setSelectedStatuses] = useState([]);
+    const [selectedProductivity, setSelectedProductivity] = useState([]);
     const [isUnitFilterExpanded, setIsUnitFilterExpanded] = useState(false);
     const [isRoleFilterExpanded, setIsRoleFilterExpanded] = useState(false);
     const [isStatusFilterExpanded, setIsStatusFilterExpanded] = useState(false);
+    const [isProductivityFilterExpanded, setIsProductivityFilterExpanded] = useState(false);
 
     const { data: units } = useCollection(db, 'units');
     const { data: jobTitles } = useCollection(db, 'jobTitles');
     const { data: statuses } = useCollection(db, 'statuses');
 
     const shiftsQuery = () => {
+        const nonProductiveStatuses = ['PTO', 'EIB', 'Call out', 'Non-Productive', 'Orientation', 'Preferred Off'];
+        let queries = [];
+
         if (scheduleType === 'daily') {
-            let queries = [where('date', '==', selectedDate)];
-            if (selectedUnits.length) {
-                queries.push(where('unitId', 'in', selectedUnits));
-            }
-            if (selectedRoles.length) {
-                queries.push(where('jobTitle', 'in', selectedRoles));
-            }
-            if (selectedStatuses.length) {
-                queries.push(where('status', 'in', selectedStatuses));
-            }
-            return queries;
+            queries.push(where('date', '==', selectedDate));
         } else {
             const endDate = new Date(selectedDate);
             endDate.setDate(endDate.getDate() + 28);
-            let queries = [
-                where('date', '>=', selectedDate),
-                where('date', '<=', endDate.toISOString().split('T')[0])
-            ];
-            if (selectedUnits.length) {
-                queries.push(where('unitId', 'in', selectedUnits));
-            }
-            if (selectedRoles.length) {
-                queries.push(where('jobTitle', 'in', selectedRoles));
-            }
-            if (selectedStatuses.length) {
-                queries.push(where('status', 'in', selectedStatuses));
-            }
-            return queries;
+            queries.push(where('date', '>=', selectedDate));
+            queries.push(where('date', '<=', endDate.toISOString().split('T')[0]));
         }
+
+        if (selectedUnits.length) {
+            queries.push(where('unitId', 'in', selectedUnits));
+        }
+        if (selectedRoles.length) {
+            queries.push(where('jobTitle', 'in', selectedRoles));
+        }
+        if (selectedStatuses.length) {
+            queries.push(where('status', 'in', selectedStatuses));
+        }
+
+        if (selectedProductivity.length === 1) {
+            if (selectedProductivity[0] === 'Productive') {
+                queries.push(where('status', 'not-in', nonProductiveStatuses));
+            } else {
+                queries.push(where('status', 'in', nonProductiveStatuses));
+            }
+        }
+
+        return queries;
     };
 
     const { data: shifts } = useCollection(db, 'shifts', shiftsQuery());
@@ -75,6 +78,13 @@ const PrintHubPage = () => {
         const { value, checked } = e.target;
         setSelectedStatuses(prev =>
             checked ? [...prev, value] : prev.filter(s => s !== value)
+        );
+    };
+
+    const handleProductivityChange = (e) => {
+        const { value, checked } = e.target;
+        setSelectedProductivity(prev =>
+            checked ? [...prev, value] : prev.filter(p => p !== value)
         );
     };
 
@@ -192,6 +202,38 @@ const PrintHubPage = () => {
                                     {status.name}
                                 </label>
                             ))}
+                        </div>
+                    )}
+                </div>
+                <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                    <h3 className="text-lg font-semibold text-white mb-2 flex justify-between items-center">
+                        Filter by Productivity
+                        <button onClick={() => setIsProductivityFilterExpanded(!isProductivityFilterExpanded)} className="text-gray-400 hover:text-white text-sm">
+                            {isProductivityFilterExpanded ? <ChevronUp /> : <ChevronDown />}
+                        </button>
+                    </h3>
+                    {isProductivityFilterExpanded && (
+                        <div className="flex flex-wrap gap-2">
+                            <label className="flex items-center gap-1 text-white text-sm">
+                                <input
+                                    type="checkbox"
+                                    value="Productive"
+                                    checked={selectedProductivity.includes('Productive')}
+                                    onChange={handleProductivityChange}
+                                    className="h-4 w-4 rounded"
+                                />
+                                Productive
+                            </label>
+                            <label className="flex items-center gap-1 text-white text-sm">
+                                <input
+                                    type="checkbox"
+                                    value="Non-Productive"
+                                    checked={selectedProductivity.includes('Non-Productive')}
+                                    onChange={handleProductivityChange}
+                                    className="h-4 w-4 rounded"
+                                />
+                                Non-Productive
+                            </label>
                         </div>
                     )}
                 </div>
