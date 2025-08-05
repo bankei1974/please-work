@@ -253,6 +253,8 @@ const PrintHubPage = () => {
                                     <th className="p-4">Unit</th>
                                     <th className="p-4">Role</th>
                                     <th className="p-4">Status</th>
+                                    <th className="p-4">Start Time</th>
+                                    <th className="p-4">End Time</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -264,6 +266,8 @@ const PrintHubPage = () => {
                                             <td className="p-4">{units.find(u => u.id === shift.unitId)?.name}</td>
                                             <td className="p-4">{staffMember?.jobTitle}</td>
                                             <td className="p-4">{shift.status}</td>
+                                            <td className="p-4">{shift.startTime}</td>
+                                            <td className="p-4">{shift.endTime}</td>
                                         </tr>
                                     );
                                 })}
