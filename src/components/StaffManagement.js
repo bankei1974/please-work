@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { doc, deleteDoc, getDocs, updateDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useCollection } from '../hooks/useCollection';
-import StaffFormModal from './StaffFormModal';
+import { Link } from 'react-router-dom';
 import { PlusCircle, Edit, Trash2, Search, User } from 'lucide-react';
 
 const StaffManagement = ({ db, onViewProfile }) => {
@@ -11,16 +11,12 @@ const StaffManagement = ({ db, onViewProfile }) => {
     const { data: jobTitles } = useCollection(db, `jobTitles`);
     const { data: statuses } = useCollection(db, `statuses`);
     const { data: shifts } = useCollection(db, `shifts`);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingStaff, setEditingStaff] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedUnits, setSelectedUnits] = useState([]);
     const [selectedJobTitles, setSelectedJobTitles] = useState([]);
     const [isUnitFilterExpanded, setIsUnitFilterExpanded] = useState(false);
     const [isJobTitleFilterExpanded, setIsJobTitleFilterExpanded] = useState(false);
 
-    const handleOpenModal = (staffMember = null) => { setEditingStaff(staffMember); setIsModalOpen(true); };
-    const handleCloseModal = () => { setIsModalOpen(false); setEditingStaff(null); };
     const handleDelete = async (id) => { if (window.confirm("Are you sure you want to delete this staff member?")) await deleteDoc(doc(db, usersPath, id)); };
     
     const formatSelected = (selected, allItems) => {
@@ -161,7 +157,7 @@ const StaffManagement = ({ db, onViewProfile }) => {
                 <h3 className="text-2xl font-semibold">Staff Profiles</h3>
                 <div className="flex gap-2">
                     <button onClick={awardPerfectAttendance} className="btn-secondary flex items-center gap-2">Award Perfect Attendance</button>
-                    <button onClick={() => handleOpenModal()} className="btn-primary flex items-center gap-2"><PlusCircle size={18} /> Add Staff</button>
+                    <Link to="/staff-form" className="btn-primary flex items-center gap-2"><PlusCircle size={18} /> Add Staff</Link>
                 </div>
             </div>
 
@@ -275,10 +271,9 @@ const StaffManagement = ({ db, onViewProfile }) => {
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
                     <thead><tr className="border-b border-gray-700"><th className="p-4">Picture</th><th className="p-4">Name</th><th className="p-4">Job Title</th><th className="p-4">Unit</th><th className="p-4">Call Out Instances</th><th className="p-4">Staff Karma</th><th className="p-4">Actions</th></tr></thead>
-                    <tbody>{staffLoading ? <tr><td colSpan="7" className="text-center p-4">Loading...</td></tr> : staffWithCallOuts.map(member => (<tr key={member.id} className="border-b border-gray-700 hover:bg-gray-700/50"><td className="p-4">{member.profilePictureUrl ? <img src={member.profilePictureUrl} alt="Profile" className="w-10 h-10 rounded-full object-cover" /> : null}</td><td className="p-4">{member.fullName}</td><td className="p-4">{member.jobTitle}</td><td className="p-4">{member.predominantUnit}</td><td className="p-4">{member.callOutInstances}</td><td className="p-4">{member.staffKarma || 0}</td><td className="p-4 flex gap-2"><button onClick={() => onViewProfile(member.id)} className="text-gray-400 hover:text-white"><User size={18} /></button><button onClick={() => handleOpenModal(member)} className="text-gray-400 hover:text-white"><Edit size={18} /></button><button onClick={() => handleDelete(member.id)} className="text-red-500 hover:text-red-400"><Trash2 size={18} /></button></td></tr>))}</tbody>
+                    <tbody>{staffLoading ? <tr><td colSpan="7" className="text-center p-4">Loading...</td></tr> : staffWithCallOuts.map(member => (<tr key={member.id} className="border-b border-gray-700 hover:bg-gray-700/50"><td className="p-4">{member.profilePictureUrl ? <img src={member.profilePictureUrl} alt="Profile" className="w-10 h-10 rounded-full object-cover" /> : null}</td><td className="p-4">{member.fullName}</td><td className="p-4">{member.jobTitle}</td><td className="p-4">{member.predominantUnit}</td><td className="p-4">{member.callOutInstances}</td><td className="p-4">{member.staffKarma || 0}</td><td className="p-4 flex gap-2"><button onClick={() => onViewProfile(member.id)} className="text-gray-400 hover:text-white"><User size={18} /></button><Link to={`/staff-form/${member.id}`} className="text-gray-400 hover:text-white"><Edit size={18} /></Link><button onClick={() => handleDelete(member.id)} className="text-red-500 hover:text-red-400"><Trash2 size={18} /></button></td></tr>))}</tbody>
                 </table>
             </div>
-            <StaffFormModal isOpen={isModalOpen} onClose={handleCloseModal} db={db} collectionPath={usersPath} staffMember={editingStaff} units={units} jobTitles={jobTitles} statuses={statuses} />
 
             <div className="mt-8 bg-gray-800 p-6 rounded-2xl border border-gray-700">
                 <h3 className="text-2xl font-semibold mb-4">Staff Karma Leaderboard</h3>

@@ -12,6 +12,7 @@ import HelpOutHubPage from './HelpOutHubPage';
 import StaffKarmaPage from './StaffKarmaPage';
 import HappeningHubPage from './HappeningHubPage';
 import PrintHubPage from './PrintHubPage';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Users, CalendarDays, BarChart2, Sparkles, LogOut, ChevronsLeft, ChevronsRight, TrendingUp, Handshake, Printer } from 'lucide-react';
 import { doc, updateDoc, collection, addDoc, where } from 'firebase/firestore';
 import { useCollection } from '../hooks/useCollection';
@@ -151,10 +152,62 @@ const MainApp = () => {
     };
 
     return (
-        <div className="flex h-screen bg-gray-900 text-white font-sans">
-            <PendingSurveysModal
-                isOpen={isPendingSurveysModalOpen}
-                onClose={handleCloseModal}
+        <Router>
+            <div className="flex h-screen bg-gray-900 text-white font-sans">
+                <aside className={`bg-gray-800 border-r border-gray-700 flex flex-col flex-shrink-0 p-4 transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+                    <div className="p-4 text-2xl font-bold text-white flex items-center justify-between">
+                        {!isSidebarCollapsed && <span>The Huddle</span>}
+                        <button onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} className="text-gray-400 hover:text-white">
+                            {isSidebarCollapsed ? <ChevronsRight /> : <ChevronsLeft />}
+                        </button>
+                    </div>
+                    <nav className="flex-1 space-y-2 mt-8">
+                        {isManager ? (
+                            <>
+                                <Link to="/management" className={`nav-link ${activePage === 'management' ? 'active' : ''}`}><Users /> {!isSidebarCollapsed && "Central Hub"}</Link>
+                                <Link to="/staff-management" className={`nav-link ${activePage === 'staff-management' ? 'active' : ''}`}><Users /> {!isSidebarCollapsed && "Staff Hub"}</Link>
+                                <Link to="/scheduling" className={`nav-link ${activePage === 'scheduling' ? 'active' : ''}`}><CalendarDays /> {!isSidebarCollapsed && "Schedule Hub"}</Link>
+                                <Link to="/reports" className={`nav-link ${activePage === 'reports' ? 'active' : ''}`}><BarChart2 /> {!isSidebarCollapsed && "Reports Hub"}</Link>
+                                <Link to="/ai-insights" className={`nav-link ${activePage === 'ai-insights' ? 'active' : ''}`}><Sparkles /> {!isSidebarCollapsed && "Insights Hub"}</Link>
+                                <Link to="/help-out-hub" className={`nav-link ${activePage === 'help-out-hub' ? 'active' : ''}`}><Handshake /> {!isSidebarCollapsed && "Help Hub"}</Link>
+                                <Link to="/happening-hub" className={`nav-link ${activePage === 'happening-hub' ? 'active' : ''}`}><TrendingUp /> {!isSidebarCollapsed && "Happening Hub"}</Link>
+                                <Link to="/print-hub" className={`nav-link ${activePage === 'print-hub' ? 'active' : ''}`}><Printer /> {!isSidebarCollapsed && "Print Hub"}</Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link to="/my-schedule" className={`nav-link ${activePage === 'my-schedule' ? 'active' : ''}`}><CalendarDays /> {!isSidebarCollapsed && "My Schedule"}</Link>
+                                <Link to="/help-out-hub" className={`nav-link ${activePage === 'help-out-hub' ? 'active' : ''}`}><Handshake /> {!isSidebarCollapsed && "Help Hub"}</Link>
+                                <Link to="/my-karma" className={`nav-link ${activePage === 'my-karma' ? 'active' : ''}`}><Sparkles /> {!isSidebarCollapsed && "My Karma"}</Link>
+                                <Link to="/happening-hub" className={`nav-link ${activePage === 'happening-hub' ? 'active' : ''}`}><TrendingUp /> {!isSidebarCollapsed && "Happening Hub"}</Link>
+                            </>
+                        )}
+                    </nav>
+                    <div className="mt-auto">
+                        <button onClick={onSignOut} title={isSidebarCollapsed ? "Sign Out" : ""} className="flex items-center gap-4 w-full px-4 py-3 text-lg font-semibold text-gray-400 hover:bg-gray-700/50 hover:text-white rounded-xl">
+                            <LogOut /> {!isSidebarCollapsed && "Sign Out"}
+                        </button>
+                    </div>
+                </aside>
+                <div className="flex-1 flex flex-col overflow-auto">
+                    <Routes>
+                        <Route path="/management" element={<StaffAndUnitManagementPage />} />
+                        <Route path="/staff-management" element={<StaffManagementPage onViewProfile={handleViewProfile} />} />
+                        <Route path="/staff-profile/:staffId" element={<StaffProfilePage />} />
+                        <Route path="/scheduling" element={<NewManagerSchedulingPage onViewProfile={handleViewProfile} />} />
+                        <Route path="/reports" element={<ReportsPage />} />
+                        <Route path="/ai-insights" element={<AIInsightsPage />} />
+                        <Route path="/help-out-hub" element={<HelpOutHubPage />} />
+                        <Route path="/happening-hub" element={<HappeningHubPage />} />
+                        <Route path="/print-hub" element={<PrintHubPage />} />
+                        <Route path="/my-schedule" element={<NewStaffSchedulingPage />} />
+                        <Route path="/my-karma" element={<StaffKarmaPage />} />
+                        <Route path="/staff-form" element={<StaffFormPage />} />
+                        <Route path="/staff-form/:staffId" element={<StaffFormPage />} />
+                    </Routes>
+                </div>
+                <PendingSurveysModal
+                    isOpen={isPendingSurveysModalOpen}
+                    onClose={handleCloseModal}
                 pendingDaily={pendingDaily}
                 pendingWeekly={pendingWeekly}
                 userProfile={userProfile}
