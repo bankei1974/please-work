@@ -11,7 +11,8 @@ import StaffProfilePage from './StaffProfilePage';
 import HelpOutHubPage from './HelpOutHubPage';
 import StaffKarmaPage from './StaffKarmaPage';
 import HappeningHubPage from './HappeningHubPage';
-import { Users, CalendarDays, BarChart2, Sparkles, LogOut, ChevronsLeft, ChevronsRight, TrendingUp, Handshake } from 'lucide-react';
+import PrintHubPage from './PrintHubPage';
+import { Users, CalendarDays, BarChart2, Sparkles, LogOut, ChevronsLeft, ChevronsRight, TrendingUp, Handshake, Printer } from 'lucide-react';
 import { doc, updateDoc, collection, addDoc, where } from 'firebase/firestore';
 import { useCollection } from '../hooks/useCollection';
 import PendingSurveysModal from './PendingSurveysModal';
@@ -144,6 +145,7 @@ const MainApp = () => {
             case 'ai-insights': return <AIInsightsPage />;
             case 'help-out-hub': return <HelpOutHubPage />;
             case 'happening-hub': return <HappeningHubPage />;
+            case 'print-hub': return <PrintHubPage />;
             default: return <NewManagerSchedulingPage />;
         }
     };
@@ -199,6 +201,7 @@ const MainApp = () => {
                         <button onClick={() => setActivePage('ai-insights')} title={isSidebarCollapsed ? "Insights Hub" : ""} className={`nav-link ${activePage === 'ai-insights' ? 'active' : ''}`}><Sparkles /> {!isSidebarCollapsed && "Insights Hub"}</button>
                         <button onClick={() => setActivePage('help-out-hub')} title={isSidebarCollapsed ? "Help Hub" : ""} className={`nav-link ${activePage === 'help-out-hub' ? 'active' : ''}`}><Handshake /> {!isSidebarCollapsed && "Help Hub"}</button>
                         <button onClick={() => setActivePage('happening-hub')} title={isSidebarCollapsed ? "Happening Hub" : ""} className={`nav-link ${activePage === 'happening-hub' ? 'active' : ''}`}><TrendingUp /> {!isSidebarCollapsed && "Happening Hub"}</button>
+                        <button onClick={() => setActivePage('print-hub')} title={isSidebarCollapsed ? "Print Hub" : ""} className={`nav-link ${activePage === 'print-hub' ? 'active' : ''}`}><Printer /> {!isSidebarCollapsed && "Print Hub"}</button>
                     </>) : (<>
                         <button onClick={() => setActivePage('my-schedule')} title={isSidebarCollapsed ? "My Schedule" : ""} className={`nav-link ${activePage === 'my-schedule' ? 'active' : ''}`}><CalendarDays /> {!isSidebarCollapsed && "My Schedule"}</button>
                         <button onClick={() => setActivePage('help-out-hub')} title={isSidebarCollapsed ? "Help Hub" : ""} className={`nav-link ${activePage === 'help-out-hub' ? 'active' : ''}`}><Handshake /> {!isSidebarCollapsed && "Help Hub"}</button>
