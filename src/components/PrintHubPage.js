@@ -220,7 +220,7 @@ const PrintHubPage = () => {
                                         <tr key={shift.id} className="border-b border-gray-700 hover:bg-gray-700/50">
                                             <td className="p-4">{staffMember?.fullName}</td>
                                             <td className="p-4">{units.find(u => u.id === shift.unitId)?.name}</td>
-                                            <td className="p-4">{shift.jobTitle}</td>
+                                            <td className="p-4">{staffMember?.jobTitle}</td>
                                             <td className="p-4">{shift.status}</td>
                                         </tr>
                                     );
