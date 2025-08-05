@@ -258,7 +258,17 @@ const PrintHubPage = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {shifts.map(shift => {
+                                {shifts.sort((a, b) => {
+                                    if (a.startTime < b.startTime) return -1;
+                                    if (a.startTime > b.startTime) return 1;
+                                    if (a.endTime < b.endTime) return -1;
+                                    if (a.endTime > b.endTime) return 1;
+                                    const staffA = staff.find(s => s.id === a.staffId);
+                                    const staffB = staff.find(s => s.id === b.staffId);
+                                    if (staffA?.fullName < staffB?.fullName) return -1;
+                                    if (staffA?.fullName > staffB?.fullName) return 1;
+                                    return 0;
+                                }).map(shift => {
                                     const staffMember = staff.find(s => s.id === shift.staffId);
                                     return (
                                         <tr key={shift.id} className="border-b border-gray-700 hover:bg-gray-700/50">
