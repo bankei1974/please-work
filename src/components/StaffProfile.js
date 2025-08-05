@@ -1,9 +1,12 @@
 
 import React from 'react';
 import { useDocument } from '../hooks/useDocument';
+import { useAuthContext } from '../context/AuthContext';
 
 const StaffProfile = ({ db, staffId }) => {
     const { data: staffMember, loading } = useDocument(db, `users/${staffId}`);
+    const { userProfile } = useAuthContext();
+    const isManager = userProfile.role === 'Manager';
 
     if (loading) return <p>Loading...</p>;
     if (!staffMember) return <p>Staff member not found.</p>;
@@ -31,6 +34,14 @@ const StaffProfile = ({ db, staffId }) => {
                 <div><p className="label-style">Birthdate</p><p>{staffMember.birthdate}</p></div>
                 <div><p className="label-style">Employee ID</p><p>{staffMember.employeeId}</p></div>
                 <div><p className="label-style">COA Hire Date</p><p>{staffMember.coaHireDate}</p></div>
+                {isManager && (
+                    <>
+                        <div><p className="label-style">BLS Expiration Date</p><p>{staffMember.blsExpirationDate}</p></div>
+                        <div><p className="label-style">PALS Expiration Date</p><p>{staffMember.palsExpirationDate}</p></div>
+                        <div><p className="label-style">License Type</p><p>{staffMember.licenseType}</p></div>
+                        <div><p className="label-style">License Expiration Date</p><p>{staffMember.licenseExpirationDate}</p></div>
+                    </>
+                )}
             </div>
         </div>
     );
