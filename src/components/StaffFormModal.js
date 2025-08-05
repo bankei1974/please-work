@@ -90,7 +90,7 @@ const StaffFormModal = ({ isOpen, onClose, db, collectionPath, staffMember, unit
     return (
         <>
             <Modal isOpen={isOpen} onClose={onClose} title={staffMember ? 'Edit Staff Profile' : 'Add New Staff'}>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[80vh] p-2">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
                         <div className="mb-2">
                             <label className="label-style">Profile Picture</label>
