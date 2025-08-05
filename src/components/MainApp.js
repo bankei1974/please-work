@@ -201,77 +201,35 @@ const MainApp = () => {
                         <Route path="/print-hub" element={<PrintHubPage />} />
                         <Route path="/my-schedule" element={<NewStaffSchedulingPage />} />
                         <Route path="/my-karma" element={<StaffKarmaPage />} />
-                        <Route path="/staff-form" element={<StaffFormPage />} />
-                        <Route path="/staff-form/:staffId" element={<StaffFormPage />} />
                     </Routes>
                 </div>
                 <PendingSurveysModal
                     isOpen={isPendingSurveysModalOpen}
                     onClose={handleCloseModal}
-                pendingDaily={pendingDaily}
-                pendingWeekly={pendingWeekly}
-                userProfile={userProfile}
-                onCompleteDaily={handleCompleteDailySurvey}
-                onCompleteWeekly={handleCompleteWeeklySurvey}
-            />
-            {isWorkloadModalOpen && (
-                <WorkloadRatingModal
-                    isOpen={isWorkloadModalOpen}
-                    onClose={() => setIsWorkloadModalOpen(false)}
-                    shift={selectedShiftForSurvey}
+                    pendingDaily={pendingDaily}
+                    pendingWeekly={pendingWeekly}
                     userProfile={userProfile}
+                    onCompleteDaily={handleCompleteDailySurvey}
+                    onCompleteWeekly={handleCompleteWeeklySurvey}
                 />
-            )}
-            {isWeeklyCheckinModalOpen && (
-                <WeeklyCheckinModal
-                    isOpen={isWeeklyCheckinModalOpen}
-                    onClose={() => setIsWeeklyCheckinModalOpen(false)}
-                    userProfile={userProfile}
-                />
-            )}
-            <style>{`.input-style { background-color: #374151 !important; border: 1px solid #4B5563; border-radius: 0.5rem; padding: 0.75rem 1rem; width: 100%; color: white; } input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active { color: white; -webkit-text-fill-color: white; -webkit-box-shadow: 0 0 0 30px #374151 inset !important; box-shadow: 0 0 0 30px #374151 inset !important; } .login-input { color: white; } .login-input input { color: white; } .input-style::placeholder { color: #D1D5DB; } .input-style:focus { outline: none; ring: 2px; ring-color: #3B82F6; } .label-style { display: block; font-size: 0.875rem; font-weight: 500; color: #D1D5DB; margin-bottom: 0.25rem; } .btn-primary { padding: 0.5rem 1rem; background-color: #2563EB; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.2s; } .btn-primary:hover { background-color: #1D4ED8; } .btn-secondary { padding: 0.5rem 1rem; background-color: #4B5563; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.2s; } .btn-secondary:hover { background-color: #6B7280; } .btn-danger { padding: 0.5rem 1rem; background-color: #DC2626; color: white; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.2s; } .btn-danger:hover { background-color: #B91C1C; } .nav-link { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; font-size: 1.125rem; font-weight: 600; color: #9CA3AF; border-radius: 0.75rem; transition: background-color 0.2s, color 0.2s; } .nav-link:hover { background-color: #374151; color: white; } .nav-link.active { background-color: #1D4ED8; color: white; }`}</style>
-            <aside className={`bg-gray-800 border-r border-gray-700 flex flex-col flex-shrink-0 p-4 transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
-                <div className="p-4 text-2xl font-bold text-white flex items-center justify-between">
-                    {!isSidebarCollapsed && <span>The Huddle</span>}
-                    <button onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} className="text-gray-400 hover:text-white">
-                        {isSidebarCollapsed ? <ChevronsRight /> : <ChevronsLeft />}
-                    </button>
-                </div>
-                <nav className="flex-1 space-y-2 mt-8">
-                    {isManager ? (<>
-                        <button onClick={() => setActivePage('management')} title={isSidebarCollapsed ? "Central Hub" : ""} className={`nav-link ${activePage === 'management' ? 'active' : ''}`}>
-                            <Users />
-                            {!isSidebarCollapsed && (
-                                <div className="flex flex-col">
-                                    <span>Central Hub</span>
-                                    <span className="text-xs text-gray-400">units, roles, statuses</span>
-                                </div>
-                            )}
-                        </button>
-                        <button onClick={() => setActivePage('staff-management')} title={isSidebarCollapsed ? "Staff Hub" : ""} className={`nav-link ${activePage === 'staff-management' ? 'active' : ''}`}><Users /> {!isSidebarCollapsed && "Staff Hub"}</button>
-                        <button onClick={() => setActivePage('scheduling')} title={isSidebarCollapsed ? "Schedule Hub" : ""} className={`nav-link ${activePage === 'scheduling' ? 'active' : ''}`}><CalendarDays /> {!isSidebarCollapsed && "Schedule Hub"}</button>
-                        <button onClick={() => setActivePage('reports')} title={isSidebarCollapsed ? "Reports Hub" : ""} className={`nav-link ${activePage === 'reports' ? 'active' : ''}`}><BarChart2 /> {!isSidebarCollapsed && "Reports Hub"}</button>
-                        <button onClick={() => setActivePage('ai-insights')} title={isSidebarCollapsed ? "Insights Hub" : ""} className={`nav-link ${activePage === 'ai-insights' ? 'active' : ''}`}><Sparkles /> {!isSidebarCollapsed && "Insights Hub"}</button>
-                        <button onClick={() => setActivePage('help-out-hub')} title={isSidebarCollapsed ? "Help Hub" : ""} className={`nav-link ${activePage === 'help-out-hub' ? 'active' : ''}`}><Handshake /> {!isSidebarCollapsed && "Help Hub"}</button>
-                        <button onClick={() => setActivePage('happening-hub')} title={isSidebarCollapsed ? "Happening Hub" : ""} className={`nav-link ${activePage === 'happening-hub' ? 'active' : ''}`}><TrendingUp /> {!isSidebarCollapsed && "Happening Hub"}</button>
-                        <button onClick={() => setActivePage('print-hub')} title={isSidebarCollapsed ? "Print Hub" : ""} className={`nav-link ${activePage === 'print-hub' ? 'active' : ''}`}><Printer /> {!isSidebarCollapsed && "Print Hub"}</button>
-                    </>) : (<>
-                        <button onClick={() => setActivePage('my-schedule')} title={isSidebarCollapsed ? "My Schedule" : ""} className={`nav-link ${activePage === 'my-schedule' ? 'active' : ''}`}><CalendarDays /> {!isSidebarCollapsed && "My Schedule"}</button>
-                        <button onClick={() => setActivePage('help-out-hub')} title={isSidebarCollapsed ? "Help Hub" : ""} className={`nav-link ${activePage === 'help-out-hub' ? 'active' : ''}`}><Handshake /> {!isSidebarCollapsed && "Help Hub"}</button>
-                        <button onClick={() => setActivePage('my-karma')} title={isSidebarCollapsed ? "My Karma" : ""} className={`nav-link ${activePage === 'my-karma' ? 'active' : ''}`}><Sparkles /> {!isSidebarCollapsed && "My Karma"}</button>
-                        <button onClick={() => setActivePage('happening-hub')} title={isSidebarCollapsed ? "Happening Hub" : ""} className={`nav-link ${activePage === 'happening-hub' ? 'active' : ''}`}><TrendingUp /> {!isSidebarCollapsed && "Happening Hub"}</button>
-                    </>)}
-                </nav>
-                <div className="mt-auto">
-                    <button onClick={onSignOut} title={isSidebarCollapsed ? "Sign Out" : ""} className="flex items-center gap-4 w-full px-4 py-3 text-lg font-semibold text-gray-400 hover:bg-gray-700/50 hover:text-white rounded-xl">
-                        <LogOut /> {!isSidebarCollapsed && "Sign Out"}
-                    </button>
-                </div>
-            </aside>
-            <div className="flex-1 flex flex-col overflow-auto">
-                {renderPage()}
+                {isWorkloadModalOpen && (
+                    <WorkloadRatingModal
+                        isOpen={isWorkloadModalOpen}
+                        onClose={() => setIsWorkloadModalOpen(false)}
+                        shift={selectedShiftForSurvey}
+                        userProfile={userProfile}
+                    />
+                )}
+                {isWeeklyCheckinModalOpen && (
+                    <WeeklyCheckinModal
+                        isOpen={isWeeklyCheckinModalOpen}
+                        onClose={() => setIsWeeklyCheckinModalOpen(false)}
+                        userProfile={userProfile}
+                    />
+                )}
+                <style>{`.input-style { background-color: #374151 !important; border: 1px solid #4B5563; border-radius: 0.5rem; padding: 0.75rem 1rem; width: 100%; color: white; } input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active { color: white; -webkit-text-fill-color: white; -webkit-box-shadow: 0 0 0 30px #374151 inset !important; box-shadow: 0 0 0 30px #374151 inset !important; } .login-input { color: white; } .login-input input { color: white; } .input-style::placeholder { color: #D1D5DB; } .input-style:focus { outline: none; ring: 2px; ring-color: #3B82F6; } .label-style { display: block; font-size: 0.875rem; font-weight: 500; color: #D1D5DB; margin-bottom: 0.25rem; } .btn-primary { padding: 0.5rem 1rem; background-color: #2563EB; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.2s; } .btn-primary:hover { background-color: #1D4ED8; } .btn-secondary { padding: 0.5rem 1rem; background-color: #4B5563; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.2s; } .btn-secondary:hover { background-color: #6B7280; } .btn-danger { padding: 0.5rem 1rem; background-color: #DC2626; color: white; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.2s; } .btn-danger:hover { background-color: #B91C1C; } .nav-link { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; font-size: 1.125rem; font-weight: 600; color: #9CA3AF; border-radius: 0.75rem; transition: background-color 0.2s, color 0.2s; } .nav-link:hover { background-color: #374151; color: white; } .nav-link.active { background-color: #1D4ED8; color: white; }`}</style>
             </div>
-        </div>
+        </Router>
     );
 };
 
