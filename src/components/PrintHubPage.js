@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import './print.css';
+import '../styles/print.css';
 import { useCollection } from '../hooks/useCollection';
 import { db } from '../firebase';
 import { where } from 'firebase/firestore';
 import FourWeekSchedule from './FourWeekSchedule';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx/xlsx.mjs';
 
 const PrintHubPage = () => {
     const [scheduleType, setScheduleType] = useState('daily');
