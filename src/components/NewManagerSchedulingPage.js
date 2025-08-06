@@ -43,10 +43,10 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const [staffData, setStaffData] = useState([]);
 
     useEffect(() => {
-        if (fetchedStaffList) {
+        if (fetchedStaffList && staffData.length === 0) {
             setStaffData(fetchedStaffList);
         }
-    }, [fetchedStaffList]);
+    }, [fetchedStaffList, staffData.length]);
     const { data: shifts } = useCollection(db, shiftsPath);
     const { data: openShifts = [] } = useCollection(db, 'openShifts');
 
