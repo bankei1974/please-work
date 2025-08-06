@@ -39,7 +39,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const jobTitlesPath = `jobTitles`;
     const statusesPath = `statuses`;
 
-    const { data: fetchedStaffList, loading: staffLoading, refetch: refetchStaff } = useCollection(db, usersPath, undefined, [orderBy('displayOrder')]);
+    const { data: fetchedStaffList, loading: staffLoading, refetch: refetchStaff } = useCollection(db, usersPath, [], [orderBy('displayOrder')]);
     const [staffData, setStaffData] = useState([]);
 
     useEffect(() => {
