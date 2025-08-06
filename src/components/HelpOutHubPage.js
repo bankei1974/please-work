@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useCollection } from '../hooks/useCollection';
 import StaffShiftDetailsModal from './StaffShiftDetailsModal';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { format, addMonths, subMonths, isSameMonth } from 'date-fns';
+import { format, addMonths, subMonths, isSameMonth, startOfMonth, getDay, getDaysInMonth } from 'date-fns';
 import OpenShiftFormModal from './OpenShiftFormModal';
 import { doc, updateDoc } from 'firebase/firestore';
 
@@ -40,8 +40,11 @@ const HelpOutHubPage = () => {
         }, {});
     }, [statuses]);
 
-    const dates = Array.from({ length: 28 }, (_, i) => { const date = new Date(startDate); date.setDate(date.getDate() + i); return date; });
-    const handleDateChange = (days) => setStartDate(prev => { const newDate = new Date(prev); newDate.setDate(newDate.getDate() + days); return newDate; });
+    const firstDayOfMonth = startOfMonth(startDate);
+    const startingDayOfWeek = getDay(firstDayOfMonth);
+    const daysInMonth = getDaysInMonth(startDate);
+    const dates = Array.from({ length: daysInMonth }, (_, i) => { const date = new Date(firstDayOfMonth); date.setDate(date.getDate() + i); return date; });
+    const handleDateChange = (months) => setStartDate(prev => addMonths(prev, months));
 
     const handleShiftClick = (e, shift) => {
         e.stopPropagation(); // Prevent the click from bubbling up to the day div
@@ -71,14 +74,15 @@ const HelpOutHubPage = () => {
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-4xl font-bold text-white">Help Out Hub</h1>
                     <div className="flex items-center gap-4">
-                        <button onClick={() => handleDateChange(-7)} className="p-2 rounded-md bg-gray-700 hover:bg-gray-600"><ChevronLeft/></button>
-                        <span className="text-xl font-semibold">{dates[0].toLocaleDateString()} - {dates[27].toLocaleDateString()}</span>
-                        <button onClick={() => handleDateChange(7)} className="p-2 rounded-md bg-gray-700 hover:bg-gray-600"><ChevronRight/></button>
+                        <button onClick={() => handleDateChange(-1)} className="p-2 rounded-md bg-gray-700 hover:bg-gray-600"><ChevronLeft/></button>
+                        <span className="text-xl font-semibold">{format(startDate, 'MMMM yyyy')}</span>
+                        <button onClick={() => handleDateChange(1)} className="p-2 rounded-md bg-gray-700 hover:bg-gray-600"><ChevronRight/></button>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-7 gap-px bg-gray-700 border border-gray-700 rounded-lg overflow-hidden h-full overflow-y-auto">
                     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => <div key={day} className="text-center font-semibold py-2 bg-gray-800">{day}</div>)}
+                    {Array.from({ length: startingDayOfWeek }).map((_, i) => <div key={`empty-${i}`} className="bg-gray-800/50 border-t border-gray-700"></div>)}
                     {dates.map(date => {
                         const dateString = date.toISOString().split('T')[0];
                         const shiftsForDay = openShifts.filter(s => {
