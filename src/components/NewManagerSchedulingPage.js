@@ -5,7 +5,7 @@ import PublishModal from './PublishModal';
 import ApplyTemplateModal from './ApplyTemplateModal';
 import { Search, ChevronLeft, ChevronRight, Send, FilePlus, User } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { where, doc, updateDoc, addDoc, deleteDoc, deleteField, collection, writeBatch } from 'firebase/firestore';
+import { where, doc, updateDoc, addDoc, deleteDoc, deleteField, collection, writeBatch, orderBy } from 'firebase/firestore';
 import TodaysView from './TodaysView';
 
 import { db } from '../firebase';
@@ -39,7 +39,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const jobTitlesPath = `jobTitles`;
     const statusesPath = `statuses`;
 
-    const { data: fetchedStaffList, loading: staffLoading } = useCollection(db, usersPath);
+    const { data: fetchedStaffList, loading: staffLoading } = useCollection(db, usersPath, undefined, [orderBy('displayOrder')]);
     const [staffData, setStaffData] = useState([]);
 
     useEffect(() => {
@@ -112,17 +112,8 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         }, {});
     }, [units]);
     
-    const sortedStaffList = useMemo(() =>
-        [...staffData].sort((a, b) => {
-            if (a.displayOrder !== undefined && b.displayOrder !== undefined) {
-                return a.displayOrder - b.displayOrder;
-            }
-            return (a.fullName || '').localeCompare(b.fullName || '');
-        })
-    , [staffData]);
-
     const filteredStaff = useMemo(() => {
-        let currentStaff = [...sortedStaffList];
+        let currentStaff = [...staffData];
 
         if (searchQuery) {
             currentStaff = currentStaff.filter(s => s.fullName && s.fullName.toLowerCase().includes(searchQuery.toLowerCase()));
