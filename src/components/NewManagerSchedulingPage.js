@@ -28,7 +28,6 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const [isStatusFilterExpanded, setIsStatusFilterExpanded] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [isPendingShiftsExpanded, setIsPendingShiftsExpanded] = useState(true);
-    const [isDragging, setIsDragging] = useState(false);
 
     const handleDateChange = (e) => {
         setSelectedDate(new Date(e.target.value));
@@ -40,14 +39,14 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const jobTitlesPath = `jobTitles`;
     const statusesPath = `statuses`;
 
-    const { data: fetchedStaffList, loading: staffLoading } = useCollection(db, usersPath, undefined, [orderBy('displayOrder')]);
+    const { data: fetchedStaffList, loading: staffLoading, refetch: refetchStaff } = useCollection(db, usersPath, undefined, [orderBy('displayOrder')]);
     const [staffData, setStaffData] = useState([]);
 
     useEffect(() => {
-        if (fetchedStaffList && !isDragging) {
+        if (fetchedStaffList) {
             setStaffData(fetchedStaffList);
         }
-    }, [fetchedStaffList, isDragging]);
+    }, [fetchedStaffList]);
     const { data: shifts } = useCollection(db, shiftsPath);
     const { data: openShifts = [] } = useCollection(db, 'openShifts');
 
@@ -174,12 +173,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     };
     const handleOpenApplyTemplateModal = (staff) => { setSelectedStaffForTemplate(staff); setIsApplyTemplateModalOpen(true); };
 
-    const onDragStart = () => {
-        setIsDragging(true);
-    };
-
     const onDragEnd = async (result) => {
-        setIsDragging(false);
         if (!result.destination) return;
 
         const reorderedStaff = Array.from(staffData);
@@ -200,6 +194,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
             console.log("Committing batch update for display order...");
             await batch.commit();
             console.log("Batch update committed successfully.");
+            refetchStaff();
         } catch (error) {
             console.error("Error updating display order:", error);
         }
@@ -472,7 +467,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
                 </div>
             </div>
             {showTodaysView ? <TodaysView db={db} staffList={filteredStaff} shifts={todaysViewShifts} statusSymbols={statusSymbols} unitsMap={unitsMap} selectedDate={selectedDate} handleDateChange={handleDateChange} /> : (
-                <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
+                <DragDropContext onDragEnd={onDragEnd}>
                     <Droppable droppableId="staff-members">
                         {(provided) => (
                             <div className="flex-1 h-0 overflow-x-auto" {...provided.droppableProps} ref={provided.innerRef}>
