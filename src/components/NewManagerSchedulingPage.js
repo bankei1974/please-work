@@ -125,7 +125,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         }
 
         return currentStaff;
-    }, [sortedStaffList, searchQuery, selectedJobTitles]);
+    }, [staffData, searchQuery, selectedJobTitles]);
 
     const filteredShifts = useMemo(() => {
         if (!shifts) return [];
