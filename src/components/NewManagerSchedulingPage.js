@@ -5,7 +5,7 @@ import PublishModal from './PublishModal';
 import ApplyTemplateModal from './ApplyTemplateModal';
 import { Search, ChevronLeft, ChevronRight, Send, FilePlus, User } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { where, doc, updateDoc, addDoc, deleteDoc, deleteField, collection } from 'firebase/firestore';
+import { where, doc, updateDoc, addDoc, deleteDoc, deleteField, collection, writeBatch } from 'firebase/firestore';
 import TodaysView from './TodaysView';
 
 import { db } from '../firebase';
@@ -112,8 +112,13 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         }, {});
     }, [units]);
     
-    const sortedStaffList = useMemo(() => 
-        [...staffData].sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''))
+    const sortedStaffList = useMemo(() =>
+        [...staffData].sort((a, b) => {
+            if (a.displayOrder !== undefined && b.displayOrder !== undefined) {
+                return a.displayOrder - b.displayOrder;
+            }
+            return (a.fullName || '').localeCompare(b.fullName || '');
+        })
     , [staffData]);
 
     const filteredStaff = useMemo(() => {
@@ -177,7 +182,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     };
     const handleOpenApplyTemplateModal = (staff) => { setSelectedStaffForTemplate(staff); setIsApplyTemplateModalOpen(true); };
 
-    const onDragEnd = (result) => {
+    const onDragEnd = async (result) => {
         if (!result.destination) return;
 
         const reorderedStaff = Array.from(staffData);
@@ -185,6 +190,18 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         reorderedStaff.splice(result.destination.index, 0, removed);
 
         setStaffData(reorderedStaff);
+
+        const batch = writeBatch(db);
+        reorderedStaff.forEach((staff, index) => {
+            const staffRef = doc(db, 'users', staff.id);
+            batch.update(staffRef, { displayOrder: index });
+        });
+
+        try {
+            await batch.commit();
+        } catch (error) {
+            console.error("Error updating display order:", error);
+        }
     };
     const handleMouseEnter = (e, shift) => {
         const content = (
