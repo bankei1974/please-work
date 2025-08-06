@@ -15,6 +15,7 @@ const HappeningHubPage = () => {
     const [selectedUnits, setSelectedUnits] = useState([]);
     const { data: units } = useCollection(db, 'units');
     const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+    const [isBirthdaysExpanded, setIsBirthdaysExpanded] = useState(true);
 
     const handleUnitChange = (e) => {
         const { value, checked } = e.target;
@@ -56,7 +57,15 @@ const HappeningHubPage = () => {
                 </div>
                 <div className="grid grid-rows-2 gap-4">
                     <KarmaLeaderboard selectedUnits={selectedUnits} />
-                    <StaffBirthdays selectedUnits={selectedUnits} />
+                    <div className="bg-gray-800 p-4 rounded-lg">
+                        <h3 className="text-lg font-semibold mb-2 flex justify-between items-center">
+                            Birthdays
+                            <button onClick={() => setIsBirthdaysExpanded(!isBirthdaysExpanded)} className="text-gray-400 hover:text-white">
+                                {isBirthdaysExpanded ? <ChevronUp /> : <ChevronDown />}
+                            </button>
+                        </h3>
+                        {isBirthdaysExpanded && <StaffBirthdays selectedUnits={selectedUnits} />}
+                    </div>
                 </div>
                 <div className="col-span-3">
                     <ExpectedPatientCensus selectedUnits={selectedUnits} units={units} isManager={isManager} />
