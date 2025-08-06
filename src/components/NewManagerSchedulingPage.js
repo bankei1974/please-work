@@ -28,6 +28,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const [isStatusFilterExpanded, setIsStatusFilterExpanded] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [isPendingShiftsExpanded, setIsPendingShiftsExpanded] = useState(true);
+    const [isDragging, setIsDragging] = useState(false);
 
     const handleDateChange = (e) => {
         setSelectedDate(new Date(e.target.value));
@@ -43,10 +44,10 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const [staffData, setStaffData] = useState([]);
 
     useEffect(() => {
-        if (fetchedStaffList && staffData.length === 0) {
+        if (fetchedStaffList && !isDragging) {
             setStaffData(fetchedStaffList);
         }
-    }, [fetchedStaffList, staffData.length]);
+    }, [fetchedStaffList, isDragging]);
     const { data: shifts } = useCollection(db, shiftsPath);
     const { data: openShifts = [] } = useCollection(db, 'openShifts');
 
@@ -173,7 +174,12 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     };
     const handleOpenApplyTemplateModal = (staff) => { setSelectedStaffForTemplate(staff); setIsApplyTemplateModalOpen(true); };
 
+    const onDragStart = () => {
+        setIsDragging(true);
+    };
+
     const onDragEnd = async (result) => {
+        setIsDragging(false);
         if (!result.destination) return;
 
         const reorderedStaff = Array.from(staffData);
@@ -466,7 +472,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
                 </div>
             </div>
             {showTodaysView ? <TodaysView db={db} staffList={filteredStaff} shifts={todaysViewShifts} statusSymbols={statusSymbols} unitsMap={unitsMap} selectedDate={selectedDate} handleDateChange={handleDateChange} /> : (
-                <DragDropContext onDragEnd={onDragEnd}>
+                <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
                     <Droppable droppableId="staff-members">
                         {(provided) => (
                             <div className="flex-1 h-0 overflow-x-auto" {...provided.droppableProps} ref={provided.innerRef}>
