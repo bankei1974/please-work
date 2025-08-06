@@ -12,7 +12,7 @@ import HelpOutHubPage from './HelpOutHubPage';
 import StaffKarmaPage from './StaffKarmaPage';
 import HappeningHubPage from './HappeningHubPage';
 import PrintHubPage from './PrintHubPage';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Users, CalendarDays, BarChart2, Sparkles, LogOut, ChevronsLeft, ChevronsRight, TrendingUp, Handshake, Printer } from 'lucide-react';
 import { doc, updateDoc, collection, addDoc, where } from 'firebase/firestore';
 import { useCollection } from '../hooks/useCollection';
@@ -27,6 +27,7 @@ const MainAppContent = () => {
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const onSignOut = logout;
     const location = useLocation();
+    const navigate = useNavigate();
 
     const [isPendingSurveysModalOpen, setIsPendingSurveysModalOpen] = useState(false);
     const [pendingDaily, setPendingDaily] = useState([]);
@@ -40,6 +41,7 @@ const MainAppContent = () => {
 
     const handleViewProfile = (staffId) => {
         setSelectedStaffId(staffId);
+        navigate(`/staff-profile/${staffId}`);
     };
 
     useEffect(() => {
