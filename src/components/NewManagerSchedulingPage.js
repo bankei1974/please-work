@@ -191,6 +191,8 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
 
         setStaffData(reorderedStaff);
 
+        console.log("Reordered Staff:", reorderedStaff.map(s => ({ id: s.id, fullName: s.fullName, displayOrder: s.displayOrder })));
+
         const batch = writeBatch(db);
         reorderedStaff.forEach((staff, index) => {
             const staffRef = doc(db, 'users', staff.id);
@@ -198,7 +200,9 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         });
 
         try {
+            console.log("Committing batch update for display order...");
             await batch.commit();
+            console.log("Batch update committed successfully.");
         } catch (error) {
             console.error("Error updating display order:", error);
         }
