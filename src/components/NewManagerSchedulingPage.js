@@ -5,7 +5,7 @@ import PublishModal from './PublishModal';
 import ApplyTemplateModal from './ApplyTemplateModal';
 import { Search, ChevronLeft, ChevronRight, Send, FilePlus, User } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { where, doc, updateDoc, addDoc, deleteDoc, deleteField, collection, writeBatch, orderBy } from 'firebase/firestore';
+import { where, doc, updateDoc, addDoc, deleteDoc, deleteField, collection } from 'firebase/firestore';
 import TodaysView from './TodaysView';
 
 import { db } from '../firebase';
@@ -39,7 +39,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const jobTitlesPath = `jobTitles`;
     const statusesPath = `statuses`;
 
-    const { data: fetchedStaffList, loading: staffLoading, refetch: refetchStaff } = useCollection(db, usersPath, [], orderBy('displayOrder'));
+    const { data: fetchedStaffList, loading: staffLoading, refetch: refetchStaff } = useCollection(db, usersPath);
     const [staffData, setStaffData] = useState([]);
 
     useEffect(() => {
@@ -112,8 +112,17 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         }, {});
     }, [units]);
     
+    const sortedStaffList = useMemo(() =>
+        [...staffData].sort((a, b) => {
+            if (a.displayOrder !== undefined && b.displayOrder !== undefined) {
+                return a.displayOrder - b.displayOrder;
+            }
+            return (a.fullName || '').localeCompare(b.fullName || '');
+        })
+    , [staffData]);
+
     const filteredStaff = useMemo(() => {
-        let currentStaff = [...staffData];
+        let currentStaff = [...sortedStaffList];
 
         if (searchQuery) {
             currentStaff = currentStaff.filter(s => s.fullName && s.fullName.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -125,7 +134,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         }
 
         return currentStaff;
-    }, [staffData, searchQuery, selectedJobTitles]);
+    }, [sortedStaffList, searchQuery, selectedJobTitles]);
 
     const filteredShifts = useMemo(() => {
         if (!shifts) return [];
@@ -182,8 +191,6 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
 
         setStaffData(reorderedStaff);
 
-        console.log("Reordered Staff:", reorderedStaff.map(s => ({ id: s.id, fullName: s.fullName, displayOrder: s.displayOrder })));
-
         const batch = writeBatch(db);
         reorderedStaff.forEach((staff, index) => {
             const staffRef = doc(db, 'users', staff.id);
@@ -191,10 +198,10 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         });
 
         try {
-            console.log("Committing batch update for display order...");
             await batch.commit();
-            console.log("Batch update committed successfully.");
-            refetchStaff();
+            setTimeout(() => {
+                refetchStaff();
+            }, 500);
         } catch (error) {
             console.error("Error updating display order:", error);
         }
