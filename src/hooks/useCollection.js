@@ -4,9 +4,6 @@ import { collection, query, onSnapshot } from 'firebase/firestore';
 export function useCollection(db, collectionPath, queryConstraints = []) {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [refetchIndex, setRefetchIndex] = useState(0);
-
-    const refetch = () => setRefetchIndex(prev => prev + 1);
 
     useEffect(() => {
         if (!db || !collectionPath || !queryConstraints) { setLoading(false); return; };
@@ -28,6 +25,6 @@ export function useCollection(db, collectionPath, queryConstraints = []) {
             setLoading(false);
         }, (error) => { console.error(`Error fetching collection (${collectionPath}):`, error); setLoading(false); });
         return () => unsubscribe();
-    }, [db, collectionPath, JSON.stringify(queryConstraints), refetchIndex]);
-    return { data, loading, refetch };
+    }, [db, collectionPath, JSON.stringify(queryConstraints)]);
+    return { data, loading };
 }
