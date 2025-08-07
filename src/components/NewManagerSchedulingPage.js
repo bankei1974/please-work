@@ -3,11 +3,9 @@ import { useCollection } from '../hooks/useCollection';
 import ShiftModal from './ShiftModal';
 import PublishModal from './PublishModal';
 import ApplyTemplateModal from './ApplyTemplateModal';
-import { Search, ChevronLeft, ChevronRight, Send, FilePlus, User } from 'lucide-react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { where, doc, updateDoc, addDoc, deleteDoc, deleteField, collection, writeBatch, orderBy } from 'firebase/firestore';
+import { Search, ChevronLeft, ChevronRight, Send, FilePlus, User, ArrowUp, ArrowDown } from 'lucide-react';
+import { where, doc, updateDoc, addDoc, deleteDoc, deleteField, collection, writeBatch } from 'firebase/firestore';
 import TodaysView from './TodaysView';
-import StaffList from './StaffList';
 
 import { db } from '../firebase';
 
@@ -40,7 +38,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const jobTitlesPath = `jobTitles`;
     const statusesPath = `statuses`;
 
-    const { data: fetchedStaffList, loading: staffLoading, refetch: refetchStaff } = useCollection(db, usersPath, [], [orderBy('displayOrder')]);
+    const { data: fetchedStaffList, loading: staffLoading } = useCollection(db, usersPath);
     const [staffData, setStaffData] = useState([]);
 
     useEffect(() => {
@@ -177,6 +175,26 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         // For now, we'll just log it.
     };
     const handleOpenApplyTemplateModal = (staff) => { setSelectedStaffForTemplate(staff); setIsApplyTemplateModalOpen(true); };
+
+    const handleReorder = async (index, direction) => {
+        const newStaffData = [...staffData];
+        const [movedStaff] = newStaffData.splice(index, 1);
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        newStaffData.splice(newIndex, 0, movedStaff);
+
+        const batch = writeBatch(db);
+        newStaffData.forEach((staff, i) => {
+            const staffRef = doc(db, 'users', staff.id);
+            batch.update(staffRef, { displayOrder: i });
+        });
+
+        try {
+            await batch.commit();
+            setStaffData(newStaffData);
+        } catch (error) {
+            console.error("Error updating display order:", error);
+        }
+    };
 
     const onDragEnd = (result) => {
         if (!result.destination) return;
@@ -455,24 +473,80 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
                 </div>
             </div>
             {showTodaysView ? <TodaysView db={db} staffList={filteredStaff} shifts={todaysViewShifts} statusSymbols={statusSymbols} unitsMap={unitsMap} selectedDate={selectedDate} handleDateChange={handleDateChange} /> : (
-                <StaffList
-                    staffData={staffData}
-                    setStaffData={setStaffData}
-                    filteredStaff={filteredStaff}
-                    onViewProfile={onViewProfile}
-                    handleOpenApplyTemplateModal={handleOpenApplyTemplateModal}
-                    dates={dates}
-                    filteredShifts={filteredShifts}
-                    handleOpenShiftModal={handleOpenShiftModal}
-                    handleMouseEnter={handleMouseEnter}
-                    handleMouseLeave={handleMouseLeave}
-                    unitsMap={unitsMap}
-                    statusSymbols={statusSymbols}
-                    workloadColor={workloadColor}
-                    formatShiftTime={formatShiftTime}
-                    staffLoading={staffLoading}
-                    refetchStaff={refetchStaff}
-                />
+                <div className="flex-1 h-0 overflow-x-auto">
+                    <table className="w-full text-left border-separate" style={{ borderSpacing: '0 0.5rem' }}>
+                        <thead>
+                            <tr>
+                                <th className="p-2 sticky left-0 bg-.gray-900 z-30">Staff Member</th>
+                                {dates.map(date => (
+                                    <th key={date.toISOString()} className={`p-2 text-center min-w-[100px] rounded-t-lg ${getDayColoring(date)} sticky top-0 z-30`}>
+                                        <div className="text-xs text-gray-300">{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                                        <div>{date.getDate()}</div>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="bg-gray-800">
+                            {staffLoading ? (
+                                <tr><td colSpan={29}>Loading staff...</td></tr>
+                            ) : filteredStaff.map((staff, index) => (
+                                <tr key={staff.id} className="bg-gray-800">
+                                    <td className="p-10 sticky left-0 bg-gray-800 z-10 border-y border-l border-gray-700 rounded-l-lg font-medium whitespace-nowrap min-w-max">
+                                        <div className="flex items-center gap-1">
+                                            {staff.profilePictureUrl && (
+                                                <img src={staff.profilePictureUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
+                                            )}
+                                            <span>{staff.fullName}</span>
+                                        </div>
+                                        <div className="flex gap-1 mt-1">
+                                            <button onClick={() => onViewProfile(staff.id)} className="text-gray-400 hover:text-white p-1 rounded-full bg-gray-700/50">
+                                                <User size={14} />
+                                            </button>
+                                            <button onClick={() => handleOpenApplyTemplateModal(staff)} className="text-gray-400 hover:text-white p-1 rounded-full bg-gray-700/50">
+                                                <FilePlus size={14} />
+                                            </button>
+                                            <button onClick={() => handleReorder(index, 'up')} className="text-gray-400 hover:text-white p-1 rounded-full bg-gray-700/50" disabled={index === 0}>
+                                                <ArrowUp size={14} />
+                                            </button>
+                                            <button onClick={() => handleReorder(index, 'down')} className="text-gray-400 hover:text-white p-1 rounded-full bg-gray-700/50" disabled={index === filteredStaff.length - 1}>
+                                                <ArrowDown size={14} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                    {dates.map(date => {
+                                        const dateString = date.toISOString().split('T')[0];
+                                        const shiftsForCell = filteredShifts.filter(s => s.staffId === staff.id && s.date === dateString);
+                                        return (
+                                            <td key={dateString} className="p-1 border-t border-b border-gray-700 hover:bg-blue-600/20 cursor-pointer h-20 align-top" onClick={() => handleOpenShiftModal(staff, date)}>
+                                                <div className="space-y-1">
+                                                    {shiftsForCell.map(shift => (
+                                                        <div
+                                                            key={shift.id}
+                                                            onClick={(e) => { e.stopPropagation(); handleOpenShiftModal(staff, date, shift); }}
+                                                            onMouseEnter={(e) => handleMouseEnter(e, shift)}
+                                                            onMouseLeave={handleMouseLeave}
+                                                            className={`relative p-1 rounded text-xs text-white ${unitsMap[shift.unitId]?.color || 'bg-gray-600'} ${!shift.published ? 'opacity-50 border-2 border-dashed border-gray-400' : ''} `}
+                                                            title={Array.isArray(shift.status) ? shift.status.join(', ') : shift.status}
+                                                        >
+                                                            <div className="flex justify-between items-center">
+                                                                <div>{formatShiftTime(shift)}</div>
+                                                                <div className="flex gap-1">
+                                                                    {Array.isArray(shift.status) && shift.status.map(s => <span key={s} className="text-xl text-white text-shadow-default">{statusSymbols[s] || '❓'}</span>)}
+                                                                </div>
+                                                            </div>
+                                                            <div className="font-bold">{unitsMap[shift.unitId]?.name || shift.unitId}</div>
+                                                            {shift.workloadRating && <div className={`absolute top-1 right-1 h-2 w-2 rounded-full ${workloadColor(shift.workloadRating)}`}></div>}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                        )
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
             <ShiftModal isOpen={isShiftModalOpen} onClose={() => setIsShiftModalOpen(false)} db={db} shiftInfo={selectedShiftInfo} units={units} statuses={statuses} collectionPath={shiftsPath} />
             <PublishModal isOpen={isPublishModalOpen} onClose={() => setIsPublishModalOpen(false)} db={db} collectionPath={shiftsPath} startDate={dates[0].toISOString().split('T')[0]} endDate={dates[27].toISOString().split('T')[0]}/>
