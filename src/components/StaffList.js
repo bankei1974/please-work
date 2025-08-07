@@ -21,9 +21,8 @@ const StaffList = ({
     workloadColor,
     formatShiftTime,
     staffLoading,
+    refetchStaff,
 }) => {
-    const { refetch: refetchStaff } = useCollection(db, 'users');
-
     const onDragEnd = async (result) => {
         if (!result.destination) return;
 

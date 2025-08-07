@@ -40,7 +40,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const jobTitlesPath = `jobTitles`;
     const statusesPath = `statuses`;
 
-    const { data: fetchedStaffList, loading: staffLoading } = useCollection(db, usersPath);
+    const { data: fetchedStaffList, loading: staffLoading, refetch: refetchStaff } = useCollection(db, usersPath, [], [orderBy('displayOrder')]);
     const [staffData, setStaffData] = useState([]);
 
     useEffect(() => {
@@ -471,6 +471,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
                     workloadColor={workloadColor}
                     formatShiftTime={formatShiftTime}
                     staffLoading={staffLoading}
+                    refetchStaff={refetchStaff}
                 />
             )}
             <ShiftModal isOpen={isShiftModalOpen} onClose={() => setIsShiftModalOpen(false)} db={db} shiftInfo={selectedShiftInfo} units={units} statuses={statuses} collectionPath={shiftsPath} />
