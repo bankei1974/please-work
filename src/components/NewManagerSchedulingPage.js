@@ -4,7 +4,7 @@ import ShiftModal from './ShiftModal';
 import PublishModal from './PublishModal';
 import ApplyTemplateModal from './ApplyTemplateModal';
 import { Search, ChevronLeft, ChevronRight, Send, FilePlus, User, ArrowUp, ArrowDown } from 'lucide-react';
-import { where, doc, updateDoc, addDoc, deleteDoc, deleteField, collection, writeBatch } from 'firebase/firestore';
+import { where, doc, updateDoc, addDoc, deleteDoc, deleteField, collection, writeBatch, orderBy } from 'firebase/firestore';
 import TodaysView from './TodaysView';
 
 import { db } from '../firebase';
