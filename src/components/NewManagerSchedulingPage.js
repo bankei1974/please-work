@@ -38,7 +38,7 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
     const jobTitlesPath = `jobTitles`;
     const statusesPath = `statuses`;
 
-    const { data: fetchedStaffList, loading: staffLoading } = useCollection(db, usersPath);
+    const { data: fetchedStaffList, loading: staffLoading, refetch: refetchStaff } = useCollection(db, usersPath, [], [orderBy('displayOrder')]);
     const [staffData, setStaffData] = useState([]);
 
     useEffect(() => {
@@ -182,8 +182,6 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         const newIndex = direction === 'up' ? index - 1 : index + 1;
         newStaffData.splice(newIndex, 0, movedStaff);
 
-        console.log("Reordered Staff:", newStaffData.map(s => ({ id: s.id, fullName: s.fullName, displayOrder: s.displayOrder })));
-
         const batch = writeBatch(db);
         newStaffData.forEach((staff, i) => {
             const staffRef = doc(db, 'users', staff.id);
@@ -191,10 +189,8 @@ const NewManagerSchedulingPage = ({ onViewProfile }) => {
         });
 
         try {
-            console.log("Committing batch update for display order...");
             await batch.commit();
-            console.log("Batch update committed successfully.");
-            setStaffData(newStaffData);
+            refetchStaff();
         } catch (error) {
             console.error("Error updating display order:", error);
         }
