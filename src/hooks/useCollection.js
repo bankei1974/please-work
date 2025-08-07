@@ -23,8 +23,8 @@ export function useCollection(db, collectionPath, queryConstraints = [], orderBy
 
         setLoading(true);
         const collRef = collection(db, collectionPath);
-        const allConstraints = [...queryConstraints, ...orderByConstraints].filter(c => c);
-        console.log('allConstraints', allConstraints);
+        const orderByArray = Array.isArray(orderByConstraints) ? orderByConstraints : [orderByConstraints];
+        const allConstraints = [...queryConstraints, ...orderByArray].filter(c => c);
         const q = query(collRef, ...allConstraints);
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
